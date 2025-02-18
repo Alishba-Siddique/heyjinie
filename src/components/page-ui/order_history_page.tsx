@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { fetchOrderHistory, addReviews } from '@/services/api.service';
 import {
   ChevronDown,
-  MoreVertical,
   Star,
   X,
   Gift,

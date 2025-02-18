@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from '@/context/AuthContext'; // Import the AuthProvider
 import { AuthWrapper } from '@/context/AuthWrapper';
 import PageTransition from '@/components/page-ui/PageTransition';
-import { Poppins } from 'next/font/google';
+import { Poppins, Pacifico } from 'next/font/google';
 import Sidebar from '@/components/page-ui/sidebar';
 import Header from '@/components/page-ui/header';
 import { CartProvider } from '@/context/CartContext';
@@ -17,6 +17,12 @@ export const poppins = Poppins({
   subsets: ['latin'],
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-poppins',
+  display: 'swap',
+});
+export const pacifico = Pacifico({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-pacifico',
   display: 'swap',
 });
 

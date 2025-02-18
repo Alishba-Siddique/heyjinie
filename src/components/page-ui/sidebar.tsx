@@ -82,29 +82,6 @@ const Sidebar = () => {
                   <span>Home</span>
                 </a>
               </li>
-              {/* <li>
-                <a
-                  href="/personalize"
-                  className={currentPath === '/personalize' ? 'at-active' : ''}
-                >
-                  <em>
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <circle cx="12" cy="7" r="4" />
-                      <path
-                        d="M12 13c-5 0-9 3-9 6v1c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-1c0-3-4-6-9-6z"
-                        fill="white"
-                      />
-                    </svg>
-                  </em>
-                  <span>Personalize</span>
-                </a>
-              </li> */}
               <li>
                 <a href="/events">
                   <em>
@@ -285,6 +262,29 @@ const Sidebar = () => {
                     </svg>
                   </em>
                   <span>My Orders</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/pro"
+                  className={currentPath === '/pro' ? 'at-active' : ''}
+                >
+                  <em>
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle cx="12" cy="7" r="4" />
+                      <path
+                        d="M12 13c-5 0-9 3-9 6v1c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-1c0-3-4-6-9-6z"
+                        fill="white"
+                      />
+                    </svg>
+                  </em>
+                  <span>Pro Version</span>
                 </a>
               </li>
             </ul>
