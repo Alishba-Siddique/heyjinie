@@ -14,6 +14,7 @@ const Sidebar = () => {
     clearSession();
     toast.success('Logged out successfully!');
     router.push('/auth');
+  
   };
 
   useEffect(() => {
