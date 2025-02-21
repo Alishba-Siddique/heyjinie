@@ -1,169 +1,144 @@
-// // src/services/payfast.service.ts
-// import axios from 'axios';
-
-// const PAYFAST_BASE_URL = 'https://ipguat.apps.net.pk/Ecommerce/api/Transaction';
-
-// export const initiatePayFastPayment = async (orderData: any) => {
-//   const {
-//     merchant_id,
-//     secured_key,
-//     basket_id,
-//     trans_amount,
-//     currency_code,
-//     customer_email,
-//     customer_mobile,
-//     success_url,
-//     failure_url,
-//     checkout_url,
-//     order_date,
-//     order_id,
-//     store_name,
-//     service_fee,
-//   } = orderData;
-
-//   try {
-//     // Step 1: Get Access Token
-//     const tokenResponse = await axios.post(`${PAYFAST_BASE_URL}/GetAccessToken`, null, {
-//       params: {
-//         MERCHANT_ID: merchant_id,
-//         SECURED_KEY: secured_key,
-//         BASKET_ID: basket_id,
-//         TXNAMT: trans_amount,
-//         CURRENCY_CODE: currency_code,
-//       },
-//     });
-
-//     const accessToken = tokenResponse.data.ACCESS_TOKEN;
-
-//     if (!accessToken) {
-//       throw new Error('Failed to retrieve access token from PayFast');
-//     }
-
-//     // Step 2: Prepare Payment Data
-//     const paymentData = {
-//       MERCHANT_ID: merchant_id,
-//       MERCHANT_NAME: store_name,
-//       TOKEN: accessToken,
-//       BASKET_ID: basket_id,
-//       TXNAMT: trans_amount,
-//       CURRENCY_CODE: currency_code,
-//       CUSTOMER_EMAIL_ADDRESS: customer_email,
-//       CUSTOMER_MOBILE_NO: customer_mobile,
-//       ORDER_DATE: order_date,
-//       ORDER_ID: order_id,
-//       SERVICE_FEE: service_fee,
-//       SUCCESS_URL: success_url,
-//       FAILURE_URL: failure_url,
-//       CHECKOUT_URL: checkout_url,
-//       SIGNATURE: 'RANDOMSTRINGVALUE', // Replace with actual signature if required
-//       VERSION: 'MY_VER_1.0',
-//       TXNDESC: 'Payment for order',
-//       PROCCODE: '00',
-//     };
-
-//     // Step 3: Redirect to PayFast WebView
-//     const form = document.createElement('form');
-//     form.method = 'POST';
-//     form.action = `${PAYFAST_BASE_URL}/PostTransaction`;
-
-//     Object.entries(paymentData).forEach(([key, value]) => {
-//       const input = document.createElement('input');
-//       input.type = 'hidden';
-//       input.name = key;
-//       input.value = value as string;
-//       form.appendChild(input);
-//     });
-
-//     document.body.appendChild(form);
-//     form.submit();
-
-//   } catch (error: any) {
-//     console.error('Error initiating PayFast payment:', error);
-//     throw error;
-//   }
-// };
-
-
-
-// src/services/payfast.service.ts
+// src/services/payment.service.ts
 import axios from 'axios';
 
-export const initiatePayFastPayment = async (orderData: any) => {
-  const {
-    merchant_id,
-    secured_key,
-    basket_id,
-    trans_amount,
-    currency_code,
-    customer_email,
-    customer_mobile,
-    success_url,
-    failure_url,
-    checkout_url,
-    order_date,
-    order_id,
-    store_name,
-    service_fee,
-  } = orderData;
-  const PAYFAST_BASE_URL = 'https://ipguat.apps.net.pk/Ecommerce/api/Transaction';
+interface PayFastPaymentData {
+  merchant_id: string;
+  secured_key: string;
+  basket_id: string;
+  trans_amount: string;
+  currency_code: string;
+  customer_email: string;
+  customer_mobile: string;
+  success_url: string;
+  failure_url: string;
+  checkout_url: string;
+  order_date: string;
+  store_name: string;
+  txndesc?: string;
+}
+
+/**
+ * Initiates a PayFast payment by obtaining an access token and redirecting to the payment gateway
+ * @param paymentData Payment details required for processing the transaction
+ */
+export const initiatePayFastPayment = async (paymentData: PayFastPaymentData): Promise<void> => {
   try {
-    // Step 1: Get Access Token via the proxy API route
-    const tokenResponse = await axios.get('https://ipguat.apps.net.pk/Ecommerce/api/Transaction/api/payfast/getAccessToken', {
-      params: {
-        merchant_id,
-        secured_key,
-        basket_id,
-        trans_amount,
-        currency_code,
-      },
+    // Step 1: Get access token from PayFast
+    const token = await getPayFastAccessToken({
+      merchant_id: paymentData.merchant_id,
+      secured_key: paymentData.secured_key,
+      basket_id: paymentData.basket_id,
+      trans_amount: paymentData.trans_amount,
+      currency_code: paymentData.currency_code
     });
 
-    const accessToken = tokenResponse.data.ACCESS_TOKEN;
-
-    if (!accessToken) {
-      throw new Error('Failed to retrieve access token from PayFast');
+    if (!token) {
+      throw new Error('Failed to obtain PayFast access token');
     }
 
-    // Step 2: Prepare Payment Data
-    const paymentData = {
-      MERCHANT_ID: merchant_id,
-      MERCHANT_NAME: store_name,
-      TOKEN: accessToken,
-      BASKET_ID: basket_id,
-      TXNAMT: trans_amount,
-      CURRENCY_CODE: currency_code,
-      CUSTOMER_EMAIL_ADDRESS: customer_email,
-      CUSTOMER_MOBILE_NO: customer_mobile,
-      ORDER_DATE: order_date,
-      ORDER_ID: order_id,
-      SERVICE_FEE: service_fee,
-      SUCCESS_URL: success_url,
-      FAILURE_URL: failure_url,
-      CHECKOUT_URL: checkout_url,
-      SIGNATURE: 'RANDOMSTRINGVALUE', // Replace with actual signature if required
-      VERSION: 'MY_VER_1.0',
-      TXNDESC: 'Payment for order',
+    // Step 2: Prepare form data for the payment request
+    const formData = {
+      CURRENCY_CODE: paymentData.currency_code,
+      MERCHANT_ID: paymentData.merchant_id,
+      MERCHANT_NAME: paymentData.store_name,
+      TOKEN: token,
+      BASKET_ID: paymentData.basket_id,
+      TXNAMT: paymentData.trans_amount,
+      ORDER_DATE: paymentData.order_date,
+      SUCCESS_URL: paymentData.success_url,
+      FAILURE_URL: paymentData.failure_url,
+      CHECKOUT_URL: paymentData.checkout_url,
+      CUSTOMER_EMAIL_ADDRESS: paymentData.customer_email,
+      CUSTOMER_MOBILE_NO: paymentData.customer_mobile,
+      SIGNATURE: generateSignature(paymentData.merchant_id, token),
+      VERSION: 'MERCHANTCART-1.0',
+      TXNDESC: paymentData.txndesc || 'Order Payment',
       PROCCODE: '00',
+      TRAN_TYPE: 'ECOMM_PURCHASE'
     };
 
-    // Step 3: Redirect to PayFast WebView
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `${PAYFAST_BASE_URL}/PostTransaction`;
+    // Step 3: Create and submit a form to redirect to PayFast
+    submitPaymentForm(formData);
+  } catch (error) {
+    console.error('PayFast payment initiation failed:', error);
+    throw new Error(error instanceof Error ? error.message : 'Payment gateway error');
+  }
+};
 
-    Object.entries(paymentData).forEach(([key, value]) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = key;
-      input.value = value as string;
-      form.appendChild(input);
+/**
+ * Gets an access token from PayFast API
+ */
+const getPayFastAccessToken = async ({
+  merchant_id,
+  secured_key,
+  basket_id,
+  trans_amount,
+  currency_code
+}: {
+  merchant_id: string;
+  secured_key: string;
+  basket_id: string;
+  trans_amount: string;
+  currency_code: string;
+}): Promise<string> => {
+  try {
+    const tokenApiUrl = 'https://ipguat.apps.net.pk/Ecommerce/api/Transaction/GetAccessToken';
+    const params = new URLSearchParams();
+    params.append('MERCHANT_ID', merchant_id);
+    params.append('SECURED_KEY', secured_key);
+    params.append('BASKET_ID', basket_id);
+    params.append('TXNAMT', trans_amount);
+    params.append('CURRENCY_CODE', currency_code);
+
+    const response = await axios.post(tokenApiUrl, params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'CURL/Next.js PayFast Client'
+      }
     });
 
-    document.body.appendChild(form);
-    form.submit();
+    if (!response.data || !response.data.ACCESS_TOKEN) {
+      console.error('Invalid token response:', response.data);
+      throw new Error('Failed to retrieve access token');
+    }
 
-  } catch (error: any) {
-    console.error('Error initiating PayFast payment:', error);
+    return response.data.ACCESS_TOKEN;
+  } catch (error) {
+    console.error('Error getting PayFast access token:', error);
     throw error;
   }
+};
+
+/**
+ * Generate a signature for PayFast transaction
+ * Note: Implement actual signature generation algorithm as required by PayFast
+ */
+const generateSignature = (merchantId: string, token: string): string => {
+  // This is a placeholder. In production, implement the actual signature
+  // algorithm as specified by PayFast documentation
+  const timestamp = new Date().getTime();
+  return `SIG-${merchantId}-${timestamp}`;
+};
+
+/**
+ * Creates and submits a form to redirect to PayFast payment page
+ */
+const submitPaymentForm = (formData: Record<string, string>): void => {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://ipguat.apps.net.pk/Ecommerce/api/Transaction/PostTransaction';
+  form.style.display = 'none';
+
+  // Add all form fields
+  Object.entries(formData).forEach(([key, value]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  // Add form to body and submit
+  document.body.appendChild(form);
+  form.submit();
 };
