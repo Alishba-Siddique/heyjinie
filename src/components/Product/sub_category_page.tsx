@@ -13,6 +13,8 @@ import { useCart } from '@/context/CartContext';
 import { toast } from 'react-toastify';
 import RatingStars from '../page-ui/rating_stars';
 
+const PLACEHOLDER_IMAGE = '/images/logoicons.png';
+
 interface Company {
   _id: string;
   name: string;
@@ -374,7 +376,7 @@ const SubCategoryPage = () => {
                       //     colorsPalette[index % colorsPalette.length],
                       // }}
                     >
-                      <img src={product.image_path} alt={product.name} />
+                      <img src={product.image_path || PLACEHOLDER_IMAGE} alt={product.name} />
                     </figure>
                     <div className="at-gifttitle flex items-center justify-between w-full font-bold">
                       {brand && ( // Check if brand exists
@@ -442,7 +444,7 @@ const SubCategoryPage = () => {
                   <div className="at-modalleftside p-0">
                     <figure className="at-productimg p-0 m-0">
                       <img
-                        src={`${BASE_URL}/${selectedProduct.background_image}`}
+                        src={`${BASE_URL}/${selectedProduct.background_image[0]}`}
                         alt={selectedProduct.name}
                       />
                     </figure>
@@ -607,8 +609,9 @@ const SubCategoryPage = () => {
                   </button>
                   <div className="at-modalleftside at-modalordersummeryleft p-0">
                     <figure className="at-productimg m-0 p-0">
+                      
                       <img
-                        src={`${BASE_URL}/${selectedProduct.background_image}`}
+                        src={`${BASE_URL}/${selectedProduct.background_image[0]}` || PLACEHOLDER_IMAGE}
                         // src={selectedProduct.image_path}
                         alt={selectedProduct.name}
                       />

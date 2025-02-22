@@ -3,14 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { fetchOrderHistory, addReviews } from '@/services/api.service';
-import {
-  ChevronDown,
-  Star,
-  X,
-  Gift,
-  Instagram,
-  Share2,
-} from 'lucide-react';
+import { ChevronDown, Star, X, Gift, Instagram, Share2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -38,10 +31,10 @@ interface OrderResponse {
     cart_details: Array<{
       product_id: {
         _id: string;
-        name: string;
-        image_path: string;
+        name: string | null;
+        image_path: string | null;
         price: number;
-        sticker_path_2: string;
+        sticker_path_2: string | null;
       };
       quantity: number;
       order_number: string;
@@ -54,6 +47,8 @@ interface OrderResponse {
     payment_status: boolean;
   }>;
 }
+
+const PLACEHOLDER_IMAGE = '/images/logoicons.png';
 
 const OrderSkeleton = () => (
   <div className="bg-white rounded-lg shadow animate-pulse">
@@ -422,7 +417,11 @@ const OrderHistory = () => {
     return (
       <div className="mx-auto px-4 py-8">
         <div className="text-center my-auto">
-          {error} yet!<br/> <br/> <a href='/shop'>👉 <u>Click here to place your first order!</u></a>
+          {error} yet!
+          <br /> <br />{' '}
+          <a href="/shop">
+            👉 <u>Click here to place your first order!</u>
+          </a>
         </div>
       </div>
     );
@@ -460,8 +459,6 @@ const OrderHistory = () => {
     const whatsappUrl = `https://wa.me/?text=${shareText}`;
     window.open(whatsappUrl, '_blank');
   };
-
-
 
   const handleShare = async (shareData: ShareData) => {
     try {
@@ -584,7 +581,7 @@ const OrderHistory = () => {
   };
 
   return (
-<div className="mx-auto px-4 py-8">
+    <div className="mx-auto px-4 py-8">
       <h1 className="text-sm sm:text-sm mb-6">Order History</h1>
 
       <div className="space-y-4">
@@ -604,11 +601,19 @@ const OrderHistory = () => {
                 <div className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                     <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 w-full">
-                      <img
-                        src={item.product_id.image_path}
-                        alt={item.product_id.name}
-                        className="w-full sm:w-24 h-24 rounded-lg object-cover"
-                      />
+                      {item.product_id ? (
+                        <img
+                          src={item.product_id.image_path || PLACEHOLDER_IMAGE}
+                          alt={item.product_id.name || 'Product Name'}
+                          className="w-full sm:w-24 h-24 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={PLACEHOLDER_IMAGE}
+                          alt='Product Name'
+                          className="w-full sm:w-24 h-24 rounded-lg object-cover"
+                        />
+                      )}
                       <div className="flex-1">
                         <h3 className="text-lg font-medium">
                           Order #{item.order_number}
@@ -662,8 +667,14 @@ const OrderHistory = () => {
                               onClick={() =>
                                 handleShare({
                                   url: item.url,
-                                  stickerPath: item.product_id.sticker_path_2,
-                                  productName: item.product_id.name,
+                                  stickerPath:
+                                    item.product_id.sticker_path_2 !== null
+                                      ? item.product_id.sticker_path_2
+                                      : PLACEHOLDER_IMAGE,
+                                  productName:
+                                    item.product_id.name !== null
+                                      ? item.product_id.name
+                                      : 'Product Name',
                                   orderNumber: item.order_number,
                                   price: item.orderPrice,
                                 })
@@ -686,8 +697,14 @@ const OrderHistory = () => {
                               onClick={() =>
                                 handleWhatsAppShare({
                                   url: item.url,
-                                  stickerPath: item.product_id.sticker_path_2,
-                                  productName: item.product_id.name,
+                                  stickerPath:
+                                    item.product_id.sticker_path_2 !== null
+                                      ? item.product_id.sticker_path_2
+                                      : PLACEHOLDER_IMAGE,
+                                  productName:
+                                    item.product_id.name !== null
+                                      ? item.product_id.name
+                                      : 'Product Name',
                                   orderNumber: item.order_number,
                                   price: item.orderPrice,
                                 })
@@ -716,8 +733,15 @@ const OrderHistory = () => {
                               onClick={() =>
                                 handleFacebookMessengerShare({
                                   url: item.url,
-                                  stickerPath: item.product_id.sticker_path_2,
-                                  productName: item.product_id.name,
+                                  stickerPath:
+                                    item.product_id.sticker_path_2 !== null
+                                      ? item.product_id.sticker_path_2
+                                      : PLACEHOLDER_IMAGE,
+                                  productName:
+                                    item.product_id.name !== null
+                                      ? item.product_id.name
+                                      : 'Product Name',
+
                                   orderNumber: item.order_number,
                                   price: item.orderPrice,
                                 })
@@ -740,8 +764,14 @@ const OrderHistory = () => {
                               onClick={() =>
                                 handleInstagramShare({
                                   url: item.url,
-                                  stickerPath: item.product_id.sticker_path_2,
-                                  productName: item.product_id.name,
+                                  stickerPath:
+                                    item.product_id.sticker_path_2 !== null
+                                      ? item.product_id.sticker_path_2
+                                      : PLACEHOLDER_IMAGE,
+                                  productName:
+                                    item.product_id.name !== null
+                                      ? item.product_id.name
+                                      : 'Product Name',
                                   orderNumber: item.order_number,
                                   price: item.orderPrice,
                                 })
@@ -835,3 +865,342 @@ const OrderHistory = () => {
 };
 
 export default OrderHistory;
+
+// const OrderHistory = () => {
+//   const [orders, setOrders] = useState<OrderResponse['data']>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+//   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+//   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+//   const [selectedOrder, setSelectedOrder] = useState<{
+//     productId: string;
+//     orderNumber: string;
+//     cartId: string;
+//   } | null>(null);
+//   const [isSendGiftModalOpen, setIsSendGiftModalOpen] = useState(false);
+//   const [selectedGiftOrder, setSelectedGiftOrder] = useState<{
+//     orderId: string;
+//     orderNumber: string;
+//   } | null>(null);
+
+//   useEffect(() => {
+//     const getOrders = async () => {
+//       try {
+//         const response = await fetchOrderHistory();
+//         if (response.success) {
+//           setOrders(response.data);
+//         } else {
+//           setError(response.message);
+//         }
+//       } catch (error: any) {
+//         setError(error.message);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     getOrders();
+//   }, []);
+
+//   const formatDate = (date: string) => {
+//     return new Date(date).toLocaleDateString('en-US', {
+//       month: 'short',
+//       day: 'numeric',
+//       year: 'numeric',
+//     });
+//   };
+
+//   const toggleOrderExpansion = (orderId: string) => {
+//     setExpandedOrders((prev) => {
+//       const newSet = new Set(prev);
+//       if (newSet.has(orderId)) {
+//         newSet.delete(orderId);
+//       } else {
+//         newSet.add(orderId);
+//       }
+//       return newSet;
+//     });
+//   };
+
+//   if (error) {
+//     return (
+//       <div className="mx-auto px-4 py-8">
+//         <div className="text-center my-auto">
+//           {error} yet!<br/> <br/> <a href='/shop'>👉 <u>Click here to place your first order!</u></a>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   if (loading) {
+//     return (
+//       <div className="mx-auto px-4 py-8">
+//         <OrderSkeleton />
+//         <OrderSkeleton />
+//         <OrderSkeleton />
+//       </div>
+//     );
+//   }
+
+//   if (!orders || orders.length === 0) {
+//     return (
+//       <div className="mx-auto px-4 py-8">
+//         <div className="text-center my-auto">
+//           <p>No orders found.</p>
+//           <br />
+//           <a href='/shop'>👉 <u>Click here to place your first order!</u></a>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="mx-auto px-4 py-8">
+//       <h1 className="text-sm sm:text-sm mb-6">Order History</h1>
+
+//       <div className="space-y-4">
+//         {orders.map((order) =>
+//           order.cart_details.map((item, index) => (
+//             <div
+//               key={`${order._id}-${index}`}
+//               className="bg-white rounded-lg shadow"
+//             >
+//               <div className="p-4 sm:p-6">
+//                 <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+//                   <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 w-full">
+//                     <img
+//                       src={item.product_id.image_path || PLACEHOLDER_IMAGE} // Use placeholder image if no image path
+//                       alt={item.product_id.name || 'Product Image'} // Use a default alt text if name is not available
+//                       className="w-full sm:w-24 h-24 rounded-lg object-cover"
+//                     />
+//                     <div className="flex-1">
+//                       <h3 className="text-lg font-medium">
+//                         Order #{item.order_number}
+//                       </h3>
+//                       <p className="text-gray -500 mt-1">
+//                         Placed on {formatDate(order.created_at)}
+//                       </p>
+//                       <div className="mt-2 space-x-6">
+//                         <span className="text-sm">
+//                           Items: {item.quantity}
+//                         </span>
+//                         <span className="text-sm">
+//                           Total: ${item.orderPrice.toFixed(2)}
+//                         </span>
+//                       </div>
+//                     </div>
+//                   </div>
+//                   <div className="flex items-center gap-3">
+//                     <TooltipProvider>
+//                       {!item.is_reviewed && (
+//                         <Tooltip>
+//                           <TooltipTrigger asChild>
+//                             <Button
+//                               variant="ghost"
+//                               size="sm"
+//                               className="h-8 w-8 p-0"
+//                               onClick={() => {
+//                                 setSelectedOrder({
+//                                   productId: item.product_id._id,
+//                                   orderNumber: item.order_number,
+//                                   cartId: order._id,
+//                                 });
+//                                 setIsReviewModalOpen(true);
+//                               }}
+//                             >
+//                               <Star className="h-4 w-4" />
+//                             </Button>
+//                           </TooltipTrigger>
+//                           <TooltipContent>
+//                             <p>Write a review</p>
+//                           </TooltipContent>
+//                         </Tooltip>
+//                       )}
+
+//                       <Tooltip>
+//                         <TooltipTrigger asChild>
+//                           <Button
+//                             variant="ghost"
+//                             size="sm"
+//                             className="h-8 w-8 p-0"
+//                             onClick={() =>
+//                               handleShare({
+//                                 url: item.url,
+//                                 stickerPath: item.product_id.sticker_path_2,
+//                                 productName: item.product_id.name,
+//                                 orderNumber: item.order_number,
+//                                 price: item.orderPrice,
+//                               })
+//                             }
+//                           >
+//                             <Share2 className="h-4 w-4" />
+//                           </Button>
+//                         </TooltipTrigger>
+//                         <TooltipContent>
+//                           <p>Share with others</p>
+//                         </TooltipContent>
+//                       </Tooltip>
+
+//                       <Tooltip>
+//                         <TooltipTrigger asChild>
+//                           <Button
+//                             variant="ghost"
+//                             size="sm"
+//                             className="h-8 w-8 p-0"
+//                             onClick={() =>
+//                               handleWhatsAppShare({
+//                                 url: item.url,
+//                                 stickerPath: item.product_id.sticker_path_2,
+//                                 productName: item.product_id.name,
+//                                 orderNumber: item.order_number,
+//                                 price: item.orderPrice,
+//                               })
+//                             }
+//                           >
+//                             <svg
+//                               viewBox="0 0 24 24"
+//                               className="h-4 w-4"
+//                               fill="currentColor"
+//                             >
+//                               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5. 45-9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+//                             </svg>
+//                           </Button>
+//                         </TooltipTrigger>
+//                         <TooltipContent>
+//                           <p>Share on WhatsApp</p>
+//                         </TooltipContent>
+//                       </Tooltip>
+
+//                       <Tooltip>
+//                         <TooltipTrigger asChild>
+//                           <Button
+//                             variant="ghost"
+//                             size="sm"
+//                             className="h-8 w-8 p-0"
+//                             onClick={() =>
+//                               handleFacebookMessengerShare({
+//                                 url: item.url,
+//                                 stickerPath: item.product_id.sticker_path_2,
+//                                 productName: item.product_id.name,
+//                                 orderNumber: item.order_number,
+//                                 price: item.orderPrice,
+//                               })
+//                             }
+//                           >
+//                             <PiMessengerLogoBold className="h-4 w-4" />
+//                           </Button>
+//                         </TooltipTrigger>
+//                         <TooltipContent>
+//                           <p>Share on Messenger</p>
+//                         </TooltipContent>
+//                       </Tooltip>
+
+//                       <Tooltip>
+//                         <TooltipTrigger asChild>
+//                           <Button
+//                             variant="ghost"
+//                             size="sm"
+//                             className="h-8 w-8 p-0"
+//                             onClick={() =>
+//                               handleInstagramShare({
+//                                 url: item.url,
+//                                 stickerPath: item.product_id.sticker_path_2,
+//                                 productName: item.product_id.name,
+//                                 orderNumber: item.order_number,
+//                                 price: item.orderPrice,
+//                               })
+//                             }
+//                           >
+//                             <Instagram className="h-4 w-4" />
+//                           </Button>
+//                         </TooltipTrigger>
+//                         <TooltipContent>
+//                           <p>Share on Instagram</p>
+//                         </TooltipContent>
+//                       </Tooltip>
+
+//                       <Tooltip>
+//                         <TooltipTrigger asChild>
+//                           <Button
+//                             variant="ghost"
+//                             size="sm"
+//                             className="h-8 w-8 p-0"
+//                             onClick={() => {
+//                               setSelectedGiftOrder({
+//                                 orderId: order._id,
+//                                 orderNumber: item.order_number,
+//                               });
+//                               setIsSendGiftModalOpen(true);
+//                             }}
+//                           >
+//                             <Gift className="h-4 w-4" />
+//                           </Button>
+//                         </TooltipTrigger>
+//                         <TooltipContent>
+//                           <p>Send as a gift</p>
+//                         </TooltipContent>
+//                       </Tooltip>
+
+//                       <Tooltip>
+//                         <TooltipTrigger asChild>
+//                           <Button
+//                             variant="ghost"
+//                             size="sm"
+//                             className="h-8 w-8 p-0"
+//                             onClick={() =>
+//                               toggleOrderExpansion(`${order._id}-${index}`)
+//                             }
+//                           >
+//                             <ChevronDown
+//                               className={`w-6 h-6 text-gray-400 transform transition-transform cursor-pointer ${
+//                                 expandedOrders.has(`${order._id}-${index}`)
+//                                   ? 'rotate-180'
+//                                   : ''
+//                               }`}
+//                             />
+//                           </Button>
+//                         </TooltipTrigger>
+//                         <TooltipContent>
+//                           <p>Show order details</p>
+//                         </TooltipContent>
+//                       </Tooltip>
+//                     </TooltipProvider>
+//                   </div>
+//                 </div>
+
+//                 {expandedOrders.has(`${order._id}-${index}`) && (
+//                   <OrderStatus
+//                     createdAt={order.created_at}
+//                     isClaimed={item.is_claimed}
+//                     isReviewed={item.is_reviewed}
+//                     claimedDate={item.claimed_date}
+//                   />
+//                 )}
+//               </div>
+//             </div>
+//           ))
+//         )}
+//       </div>
+
+//       <ReviewModal
+//         isOpen={isReviewModalOpen}
+//         onClose={() => {
+//           setIsReviewModalOpen(false);
+//           setSelectedOrder(null);
+//         }}
+//         onSubmit={handleReviewSubmit}
+//       />
+
+//       <SendGiftModal
+//         isOpen={isSendGiftModalOpen}
+//         onClose={() => {
+//           setIsSendGiftModalOpen(false);
+//           setSelectedGiftOrder(null);
+//         }}
+//         onSubmit={handleSendGift}
+//       />
+//     </div>
+//   );
+// };
+
+// export default OrderHistory;

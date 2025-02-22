@@ -6,17 +6,19 @@ import { fetchOrderHistory } from '@/services/api.service';
 import Loader from '@/components/page-ui/Loader';
 
 interface LatestOrder {
-  productName: string;
-  productImage: string;
+  productName: string | null;
+  productImage: string | null;
   orderNumber: string;
   price: number;
   url: string;
-  stickerPath: string;
-  description: string;
+  stickerPath: string | null;
+  description: string | null;
   customerName: string;
   companyName: string;
   created_at: string;
 }
+
+const PLACEHOLDER_IMAGE = '/images/logoicons.png';
 
 const ThankYou = () => {
   const [latestOrder, setLatestOrder] = useState<LatestOrder | null>(null);
@@ -33,13 +35,20 @@ const ThankYou = () => {
           const orderItem = mostRecentOrder.cart_details[0];
 
           setLatestOrder({
-            productName: orderItem.product_id.name,
-            productImage: orderItem.product_id.sticker_path,
+            productName:
+              orderItem.product_id.name !== null
+                ? orderItem.product_id.sticker_path
+                : 'Product Name',
+            productImage:
+              orderItem.product_id.sticker_path !== null
+                ? orderItem.product_id.sticker_path
+                : PLACEHOLDER_IMAGE,
             orderNumber: orderItem.order_number,
             price: orderItem.orderPrice,
             url: orderItem.url,
             stickerPath: orderItem.product_id.sticker_path_2,
-            description: orderItem.product_id.description,
+            description:
+              orderItem.product_id.description || 'Product Description',
             customerName: mostRecentOrder.customer_id.full_name,
             companyName: orderItem.product_id.company_id.name,
             created_at: mostRecentOrder.created_at,
@@ -62,14 +71,14 @@ const ThankYou = () => {
 
     try {
       const shareText = `
-                Check out this ${latestOrder.productName} from ${
-        latestOrder.companyName
+                Check out this ${latestOrder.productName || 'Product'} from ${
+        latestOrder.companyName || 'Company'
       }!
-                Order #${latestOrder.orderNumber}
-                Price: $${latestOrder.price.toFixed(2)}
-                ${latestOrder.description}
+                Order #${latestOrder.orderNumber || 'Order Number'}
+                Price: $${latestOrder.price.toFixed(2) || 'Price'}
+                ${latestOrder.description || 'Description'}
 
-                ${latestOrder.url}
+                ${latestOrder.url || 'URL'}
             `;
 
       switch (platform) {
@@ -108,21 +117,7 @@ const ThankYou = () => {
     return <Loader />;
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto p-4">
-        <p>{error}</p>
-        <br />
-        <button
-          onClick={() => window.location.reload()}
-          className="p-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
-        >
-          Continue Shopping
-        </button>
-      </div>
-    );
-  }
-
+  
   return (
     <div
       className="at-maincontentwrapper"
@@ -160,7 +155,7 @@ const ThankYou = () => {
         <div className="flex justify-center mb-4">
           <div className="w-32">
             <img
-              src={latestOrder?.productImage}
+              src={latestOrder?.productImage || PLACEHOLDER_IMAGE}
               alt="Product Image"
               className="w-full h-full object-contain"
             />
@@ -170,7 +165,9 @@ const ThankYou = () => {
         {/* Description */}
         {latestOrder && (
           <div className="text-center mb-4 max-w-2xl mx-auto">
-            <p className="text-gray-700 text-lg">{latestOrder.description}</p>
+            <p className="text-gray-700 text-lg">
+              {latestOrder.description || 'Product Description'}
+            </p>
           </div>
         )}
 
@@ -185,7 +182,11 @@ const ThankYou = () => {
               onClick={() => handleShare('whatsapp')}
               className="w-16 h-16 rounded-2xl bg-[#88C1FD] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition-opacity"
             >
-              <img className='w-10 h-10' src='/images/icon-whatsapp.svg' alt='whatsapp'/>
+              <img
+                className="w-10 h-10"
+                src="/images/icon-whatsapp.svg"
+                alt="whatsapp"
+              />
             </button>
 
             {/* Messenger */}
@@ -193,7 +194,11 @@ const ThankYou = () => {
               onClick={() => handleShare('messenger')}
               className="w-16 h-16 rounded-2xl bg-[#FD9399] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition-opacity"
             >
-              <img className='w-10 h-10' src='/images/icon-messenger.svg' alt='messenger'/>
+              <img
+                className="w-10 h-10"
+                src="/images/icon-messenger.svg"
+                alt="messenger"
+              />
             </button>
 
             {/* Instagram */}
@@ -201,7 +206,11 @@ const ThankYou = () => {
               onClick={() => handleShare('instagram')}
               className="w-16 h-16 rounded-2xl bg-[#FFD05E] text-white flex items-center justify-center shadow-lg hover:opacity-90 transition-opacity"
             >
-              <img className='w-10 h-10' src='/images/icon-insta.svg' alt='instagram'/>
+              <img
+                className="w-10 h-10"
+                src="/images/icon-insta.svg"
+                alt="instagram"
+              />
             </button>
           </div>
         </div>

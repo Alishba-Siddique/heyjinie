@@ -529,7 +529,7 @@ const CategoryPage = () => {
                   <div className="at-modalleftside p-0">
                     <figure className="at-productimg p-0 m-0">
                       <img
-                        src={`${BASE_URL}/${selectedProduct.background_image}`}
+                        src={`${BASE_URL}/${selectedProduct.background_image[0]}`}
                         alt={selectedProduct.name}
                       />
                     </figure>
@@ -697,7 +697,7 @@ const CategoryPage = () => {
                     <figure className="at-productimg p-0 m-0">
                       <img
                         // src={selectedProduct.image_path}
-                        src={`${BASE_URL}/${selectedProduct.background_image}`}
+                        src={`${BASE_URL}/${selectedProduct.background_image[0]}`}
                         alt={selectedProduct.name}
                       />
                     </figure>

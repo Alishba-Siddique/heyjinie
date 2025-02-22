@@ -268,7 +268,7 @@ const GiftCard: React.FC = () => {
                   <figure className="at-productimg m-0 p-0">
                     <img
                       // src={selectedProduct.image_path}
-                      src={`${BASE_URL}/${selectedProduct.background_image}`}
+                      src={`${BASE_URL}/${selectedProduct.background_image[0]}`}
                       alt={selectedProduct.name}
                       // style={{
                       //   opacity: [1, 3, 4, 5].includes(selectedProductIndex)
@@ -429,7 +429,7 @@ const GiftCard: React.FC = () => {
                   <figure className="at-productimg m-0 p-0">
                     <img
                       // src={`${BASE_URL}/${selectedProduct.image_path}`}
-                      src={`${BASE_URL}/${selectedProduct.background_image}`}
+                      src={`${BASE_URL}/${selectedProduct.background_image[0]}`}
                       alt={selectedProduct.name}
                     />
                   </figure>

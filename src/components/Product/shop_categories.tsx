@@ -40,6 +40,7 @@ interface Product {
   name: string;
   price: number;
   image_path: string;
+  sticker_path: string;
   company_id: string;
   subcategory_id: string;
   background_image: string;
@@ -57,6 +58,7 @@ interface PersonalizedMessage {
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_IMAGE_BASE_URL;
+const PLACEHOLDER_IMAGE = '/images/logoicons.png';
 
 const ShopCategories = () => {
   const router = useRouter();
@@ -332,10 +334,7 @@ const ShopCategories = () => {
                   handleBrandClick(brand.name, brand.company_logo, brand._id);
                 }}
               >
-                <img
-                  src={brand.company_logo}
-                  alt={brand.name}
-                />
+                <img src={brand.company_logo} alt={brand.name} />
               </div>
             ))}
         </div>
@@ -444,10 +443,22 @@ const ShopCategories = () => {
                   </button>
                   <div className="at-modalleftside p-0">
                     <figure className="at-productimg p-0 m-0">
-                      <img
-                        src={`${BASE_URL}/${selectedProduct.background_image}`}
-                        alt={selectedProduct.name}
-                      />
+                      {selectedProduct.background_image ? (
+                        <img
+                          src={
+                            `${BASE_URL}/${selectedProduct.background_image[0]}` ||
+                            PLACEHOLDER_IMAGE
+                          }
+                          alt={selectedProduct.name}
+                          className="w-full h-1/2 rounded-lg object-contain"
+                        />
+                      ) : (
+                        <img
+                          src={PLACEHOLDER_IMAGE}
+                          alt="Product Name"
+                          className="w-full sm:w-24 h-24 rounded-lg object-cover"
+                        />
+                      )}
                     </figure>
                   </div>
                   <div className="at-popupcontentside">
@@ -615,7 +626,10 @@ const ShopCategories = () => {
                     <figure className="at-productimg p-0 m-0">
                       <img
                         // src={selectedProduct.image_path}
-                        src={`${BASE_URL}/${selectedProduct.background_image}`}
+                        src={
+                          `${BASE_URL}/${selectedProduct.background_image[0]}` ||
+                          PLACEHOLDER_IMAGE
+                        }
                         alt={selectedProduct.name}
                       />
                     </figure>
