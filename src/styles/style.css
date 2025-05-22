@@ -593,8 +593,6 @@ address {
   float: left;
 }
 
-
-
 /* =============================================
 			Auth Page Styling						
 ============================================= */
@@ -898,10 +896,6 @@ address {
   width: 100%;
   float: left;
   height: calc(100vh - 240px);
-  overflow: auto;
-}
-.at-navigation::-webkit-scrollbar {
-  display: none;
 }
 
 .at-nav {
