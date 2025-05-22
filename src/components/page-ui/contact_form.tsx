@@ -40,7 +40,7 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="at-contactform">
+    <div className="at-contactform -mt-8">
       {/* Contact Us Heading (replacing occasions sliding banner) */}
       <div className="font-bold text-3xl text-center mb-6">Contact Us</div>
 
