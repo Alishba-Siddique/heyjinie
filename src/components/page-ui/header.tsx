@@ -640,7 +640,6 @@
 
 // export default withAuth(Header);
 
-
 // src/components/page-ui/header.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
@@ -692,13 +691,14 @@ const Header = () => {
 
   return (
     <header className="at-header">
-      {!shouldHideSearch && (
-        <div className="at-headersearch">
-          <AlgoliaSearch />
-        </div>
-      )}
+      <div
+        className="at-headersearch"
+        style={{ visibility: shouldHideSearch ? 'hidden' : 'visible' }}
+      >
+        <AlgoliaSearch />
+      </div>
 
-      <div className={`at-headerright ${shouldHideSearch ? 'justify-items-end' : ''}`}>
+      <div className="at-headerright">
         <div className="at-profilearea">
           <div className="flex justify-between items-center gap-4">
             <button
@@ -737,7 +737,10 @@ const Header = () => {
                         currentPath === '/profile' ? 'bg-[#FE9399] ' : ''
                       }`}
                     >
-                      <FaRegUserCircle size={20} className="group-hover:text-white" />
+                      <FaRegUserCircle
+                        size={20}
+                        className="group-hover:text-white"
+                      />
                       <span className="ml-3">Profile</span>
                     </a>
 
