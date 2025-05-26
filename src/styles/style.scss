@@ -1872,11 +1872,12 @@ address {
     }
 }
 .at-checkoutcontainer{
-    width: 40%;
-    float: left;
-    background: #fff;
-    border-radius: 20px;
-    padding: 20px;
+  width: 100%;
+  float: left;
+  border-radius: 20px;
+  padding: 20px;
+  background: #fff;
+  
 }
 .at-checkoutpage{
     width: 100%;
@@ -1897,6 +1898,7 @@ address {
             width: 100%;
             float: left;
             list-style-type: none;
+            margin-bottom: 15px;
             .at-cartproductname{
                 width: calc(100% - 88px);
                 em{
@@ -1918,7 +1920,7 @@ address {
         }
     }
 }
-.at-productcheckoutsummery{
+.at-productcheckoutsummary{
     width: 100%;
     float: left;
     p{
@@ -2000,8 +2002,8 @@ address {
     
 
 }
-.at-payment-notice{
-    margin: 0 0 20px;
+.at-payment-notice p{
+    margin-top: 20px;
 }
 .at-toursscreens{
     width: 100%;

@@ -516,7 +516,7 @@ const TrendingProducts: React.FC = () => {
           <div className="at-pagesectiontitle">
             <h2>Trending Products</h2>
           </div>
-          <div className="at-cardgrid horizontal-scroll overflow-x-auto snap-x snap-mandatory pb-2 flex ">
+          <div className="at-cardgrid horizontal-scroll overflow-x-auto snap-x snap-mandatory pb-2 flex">
             {loading &&
               [...Array(5)].map((_, index) => (
                 <div

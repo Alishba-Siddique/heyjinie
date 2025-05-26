@@ -1802,11 +1802,11 @@ address {
 }
 
 .at-checkoutcontainer {
-  width: 40%;
+  width: 100%;
   float: left;
-  background: #fff;
   border-radius: 20px;
   padding: 20px;
+  background: #fff;
 }
 
 .at-checkoutpage {
@@ -1830,6 +1830,7 @@ address {
   width: 100%;
   float: left;
   list-style-type: none;
+  margin-bottom: 15px;
 }
 .at-checkoutpage ul li .at-cartproductname {
   width: calc(100% - 88px);
@@ -1850,11 +1851,11 @@ address {
   text-align: right;
 }
 
-.at-productcheckoutsummery {
+.at-productcheckoutsummary {
   width: 100%;
   float: left;
 }
-.at-productcheckoutsummery p {
+.at-productcheckoutsummary p {
   margin: 0;
   font-size: 14px;
   padding: 8px;
@@ -1931,8 +1932,8 @@ address {
   min-width: 200px;
 }
 
-.at-payment-notice {
-  margin: 0 0 20px;
+.at-payment-notice p {
+  margin-top: 20px;
 }
 
 .at-toursscreens {

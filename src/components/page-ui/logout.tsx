@@ -39,7 +39,7 @@ const LogoutButton = () => {
       <figure className="at-sidebargiftimg relative flex flex-col items-center sm:items-start">
         <button
           onClick={handleLogoutClick}
-          className="at-btnlogoutholder at-btnsidebarlogout at-headerbtn flex items-center justify-center gap-2 px-4 py-2 sm:py-3 sm:px-6 w-full sm:w-auto rounded-lg border border-gray-700 bg-gray-50 hover:bg-gray-200 transition-opacity duration-300"
+          className="at-btnlogoutholder at-btnsidebarlogout at-headerbtn flex items-center justify-center gap-2 px-4 py-2 sm:py-3 sm:px-6 w-full sm:w-4/6 rounded-lg border border-gray-700 bg-gray-50 hover:bg-gray-200 transition-opacity duration-300"
           style={{
             opacity: '1',
             position: 'relative',
@@ -123,14 +123,6 @@ const LogoutButton = () => {
             </button>
           </div>
           </div>
-          {/* <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={handleCancelLogout}>
-              Cancel
-            </Button>
-            <Button variant="destructive" className='bg-[#42a674] hover:bg-[#42a674]' onClick={handleConfirmLogout}>
-              Logout
-            </Button>
-          </div> */}
         </DialogContent>
       </Dialog>
     </>

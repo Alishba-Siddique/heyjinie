@@ -41,7 +41,7 @@ const PriceFilter: React.FC = () => {
             placeholder="10"
             min="0"
             className="w-32 h-12 text-center border-gray-600 rounded-lg focus:ring-[#40A574] focus:border-[#40A574]" // Style matching image
-          />
+          /> PKR
         </div>
         <div className="flex flex-col items-start">
           <label htmlFor="maxPrice" className="text-sm text-gray-600 mb-1">Max Price</label>

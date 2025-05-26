@@ -1,19 +1,15 @@
 // src/components/page-ui/checkout_page.tsx
 
 'use client';
-import { useState, useEffect } from 'react';
-// Import PersonalizedMessage and CartItem (as CartContextItem) from your context
-import { useCart, PersonalizedMessage, CartItem as CartContextItem } from '@/context/CartContext';
+import { useState } from 'react';
+import { useCart, CartItem as CartContextItem } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import withAuth from '@/hoc/withAuth';
 import { placeOrder, confirmOrder } from '@/services/api.service';
 import { toast } from 'react-toastify';
 
-// This interface should align with what CartContextItem provides,
-// ensuring all fields used in the JSX are present.
+
 interface CartItemForCheckout extends CartContextItem {
-  // The 'personalized?: PersonalizedMessage' field will come from CartContextItem
-  // Ensure image_path, name, description are part of CartContextItem
 }
 
 const CheckOutPage = () => {
@@ -211,7 +207,7 @@ const CheckOutPage = () => {
           <p>Please add items to your cart before proceeding to checkout.</p>
           <button
             onClick={() => router.push('/home')}
-            className="at-btn at-btn-secondary mt-4"
+            className="at-btn at-btn-secondary  mt-4"
           >
             Continue Shopping
           </button>
@@ -224,12 +220,10 @@ const CheckOutPage = () => {
               <li key={item._id} className="at-checkout-item">
                 <div className="at-itemimagedecriptionarea">
                   <figure className="at-cartproductimage">
-                    {/* Ensure item.image_path, item.name are available from CartContextItem */}
                     <img src={item.image_path} alt={item.name} />
                   </figure>
                   <div className="at-cartproductname">
                     <h4>{item.name}</h4>
-                    {/* Ensure item.description is available from CartContextItem */}
                     <em>{item.description}</em>
                     <span className="at-item-quantity">
                       Qty: {item.quantity}
@@ -242,7 +236,7 @@ const CheckOutPage = () => {
               </li>
             ))}
           </ul>
-          <div className="at-productcheckoutsummery">
+          <div className="at-productcheckoutsummary">
             <p className="at-summary-row">
               <span className="at-summary-label">Subtotal:</span>
               <span className="at-summary-value">
@@ -264,13 +258,12 @@ const CheckOutPage = () => {
           </div>
           <div className="at-payment-notice">
             <p>
-              <br/><br/>
               {totalAmount > 0
-                ? 'You will be redirected to PayFast secure payment gateway to complete your payment.'
+                ? `You will be redirected to PayFast secure payment gateway to complete your payment.`
                 : 'Your order is free and will be processed immediately.'}
             </p>
           </div>
-          <div className="at-btnplaceholder at-btnaddtocart">
+          <div className="at-btnplaceholder at-btnaddtocart float-end w-1/6">
             <button
               onClick={handleCheckout}
               disabled={processing}
