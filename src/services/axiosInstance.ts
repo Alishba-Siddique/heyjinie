@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { getCookie, removeCookie } from '../utils/cookieUtility';
 import { clearSession } from '@/utils/sessionUtility';
-import { toast } from 'react-toastify';
 
 let isRedirecting = false;
 
@@ -21,7 +20,7 @@ const handleUnauthorized = () => {
 
     // Set flag in sessionStorage
     sessionStorage.setItem('showUnauthorized', 'true');
-    window.location.href = '/auth';
+    // window.location.href = '/auth';
   }
 };
 

@@ -43,7 +43,6 @@ const CheckOutPage = () => {
 
     try {
       const response = await placeOrder(orderData);
-      // console.log('Place Order Response:', response);
       if (response.success) {
         toast.success('Order placed successfully!');
         // Clear the cart

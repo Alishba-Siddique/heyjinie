@@ -42,7 +42,6 @@ export enum ShareSource {
       existingShares.push(shareInfo);
       localStorage.setItem(SHARE_TRACKING_KEY, JSON.stringify(existingShares));
       
-      console.log(`Gift shared via ${shareSource} and tracked`);
     } catch (error) {
       console.error('Error tracking gift share:', error);
     }

@@ -65,11 +65,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       const storedCartItems = getLocalStorageItem('cartItems') as CartItem[]; // Add type safety
       const storedOrderHistory = getLocalStorageItem('orderHistory') as CartItem[]; // Add type safety
       if (storedCartItems) {
-        console.log('[CartProvider] Loaded cartItems from localStorage:', storedCartItems);
         setCartItems(storedCartItems);
       }
       if (storedOrderHistory) {
-        console.log('[CartProvider] Loaded orderHistory from localStorage:', storedOrderHistory);
         setOrderHistory(storedOrderHistory);
       }
     }
@@ -98,7 +96,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         updatedItems = [...prevItems, item];
       }
 
-      console.log('[CartProvider] Updating cartItems (addToCart):', updatedItems);
       setLocalStorageItem('cartItems', updatedItems); // Persist changes
       return updatedItems;
     });
@@ -112,7 +109,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         setOrderHistory((prevHistory) => {
           if (!prevHistory.some((item) => item._id === itemToRemove._id)) {
             const updatedHistory = [...prevHistory, itemToRemove];
-            console.log('[CartProvider] Updating orderHistory:', updatedHistory);
             setLocalStorageItem('orderHistory', updatedHistory);
             return updatedHistory;
           }
@@ -121,7 +117,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       const updatedCartItems = prevItems.filter((item) => item._id !== id);
-      console.log('[CartProvider] Updating cartItems (removeFromCart):', updatedCartItems);
       setLocalStorageItem('cartItems', updatedCartItems); // Persist changes
       return updatedCartItems;
     });
@@ -134,7 +129,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
           ? { ...item, quantity: Math.max(1, quantity) } // Ensure quantity is at least 1
           : item
       );
-      console.log('[CartProvider] Updating cartItems (updateQuantity):', updatedItems);
       setLocalStorageItem('cartItems', updatedItems); // Persist changes
       return updatedItems;
     });
@@ -153,7 +147,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
               }
             : item
         );
-        console.log(`[CartProvider] Updating personalization for ${productId}:`, updatedItems);
         setLocalStorageItem('cartItems', updatedItems); // Persist changes
         return updatedItems;
       });
@@ -164,7 +157,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 
   const clearCart = useCallback(() => {
     setCartItems([]);
-    console.log('[CartProvider] Clearing cartItems.');
     removeLocalStorageItem('cartItems');
   }, []); // No dependencies, safe to use useCallback
 

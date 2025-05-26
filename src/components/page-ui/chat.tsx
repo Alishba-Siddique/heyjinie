@@ -31,7 +31,6 @@ const ChatPage: React.FC = () => {
       Tawk_API.minimize();
       // Disable sound notifications
       Tawk_API.disableSoundNotification();
-      console.log('Tawk.to chat widget loaded and minimized');
       
       // Set a flag to ensure widget only opens on click, not automatically
       Tawk_API.customVisibility = 'minimized';
@@ -132,7 +131,7 @@ const ChatPage: React.FC = () => {
         const tawkIframes = document.querySelectorAll('iframe[title*="chat"]');
         tawkIframes.forEach(iframe => iframe.remove());
       } catch (e) {
-        console.log('Error cleaning up Tawk widget:', e);
+        console.error(e)
       }
     }
     
@@ -150,7 +149,6 @@ const ChatPage: React.FC = () => {
     if (isLoading) return;
     
     if (isAuthenticated) {
-      console.log('Auth confirmed, initializing chat widget');
       initializeTawk();
     } else {
       cleanupTawk();

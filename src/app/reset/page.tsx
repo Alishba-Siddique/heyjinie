@@ -32,11 +32,9 @@ function ResetPassword() {
   const requestPasswordReset = async () => {
     try {
       const response = await authService.requestPasswordReset({ email });
-      // console.log(`OTP Response:`, response);
       setOtpSent(true);
       toast.success('OTP has been sent to your email.');
     } catch (error: any) {
-      // console.error('Failed to send OTP:', error);
       toast.error(`Failed to send OTP. ${error.message}`);
       setApiError(error?.message || 'Failed to send OTP. Please try again.');
     }
@@ -61,8 +59,6 @@ function ResetPassword() {
         new_password: data.new_password,
         confirm_password: data.confirm_password,
       });
-
-      console.log('Password Reset Successful:', response);
       toast.success('Password updated successfully! Redirecting...');
       router.prefetch('/login');
       router.push('/login');

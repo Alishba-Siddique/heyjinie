@@ -16,7 +16,6 @@ export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // This function will be called by filters to update the search term
   // AND signal that it came from a filter click
   const triggerSearch = (term: string) => {
-      console.log("SearchContext: Triggering search for -", term);
       setSearchTerm(term);
       // We rely on AlgoliaSearch component reacting to the searchTerm change
   };

@@ -292,7 +292,7 @@ export const fetchProductDetails = async (companyId: string) => {
     }
 };
 
-export const fetchTopPicks = async () => {
+export const fetchTrendingProducts = async () => {
     try {
         const response = await httpService.get(`${prefix}/top-rated-products`);
         return response.data;
@@ -582,9 +582,7 @@ export const fetchEvents = async () => {
 // Create Events
 export const createEvents = async (eventData: any) => {
     try {
-        console.log(`POST ${prefix}/event with data:`, eventData); // Log API call and data
         const response = await httpService.post(`${prefix}/event`, eventData);
-        console.log('createEvents Response:', response.data); // Log response data
         // Check for backend success flag if it exists
         if (response.data && response.data.success === false) {
             throw new Error(response.data.message || 'Backend reported failure');

@@ -51,10 +51,6 @@ const PersonalizedMessages: React.FC<PersonalizedMessagesProps> = ({
 
   // Effect to update local checked state if the initial selection prop changes
   useEffect(() => {
-    console.log(
-      '[PersonalizedMessages] selectedMessages prop updated:',
-      selectedMessages
-    );
     const currentIds = Array.isArray(selectedMessages)
       ? selectedMessages.map((msg) => msg.image_id)
       : [];
@@ -116,36 +112,17 @@ const PersonalizedMessages: React.FC<PersonalizedMessagesProps> = ({
     if (isNowChecked) {
       // Add/update the entry for the current product ID
       allSelectedMessages[productId] = { ...message, productId: productId }; // Add productId for clarity
-      console.log(
-        `[handleSelectMessage] Storing selection for ${productId}:`,
-        allSelectedMessages[productId]
-      );
     } else {
       // Remove the entry for the current product ID if it was unchecked
       if (allSelectedMessages.hasOwnProperty(productId)) {
         delete allSelectedMessages[productId];
-        console.log(
-          `[handleSelectMessage] Removing selection for ${productId}`
-        );
       }
     }
 
     // --- Save Back to localStorage ---
     try {
       const stringifiedData = JSON.stringify(allSelectedMessages);
-      console.log(
-        `[handleSelectMessage] Attempting to save to ${storageKey}:`,
-        stringifiedData
-      );
       localStorage.setItem(storageKey, stringifiedData);
-      console.log(`[handleSelectMessage] Successfully saved to ${storageKey}.`);
-
-      // Optional: Verify save immediately
-      // const readValueAfterSave = localStorage.getItem(storageKey);
-      // console.log("[handleSelectMessage] Value read immediately after save:", readValueAfterSave);
-
-      // Dispatch storage event for other components (like ShopCategories)
-      console.log('[handleSelectMessage] Dispatching storage event.');
       window.dispatchEvent(new StorageEvent('storage', { key: storageKey })); // More specific event
 
       // --- Signal Completion to Parent ---

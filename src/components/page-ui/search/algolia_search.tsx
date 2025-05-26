@@ -212,7 +212,6 @@ const CustomSearchBox = ({
     if (event.key === 'Enter' && inputValue.trim()) {
       event.preventDefault();
       const trimmedValue = inputValue.trim();
-      console.log('CustomSearchBox: Enter pressed with term:', trimmedValue);
       saveSearchHistory(trimmedValue);
       onHistoryUpdate(getSearchHistory());
       if (trimmedValue !== currentRefinement) {
@@ -327,7 +326,6 @@ const AlgoliaSearch = () => {
 
   const handleHistoryClick = useCallback(
     (item: string) => {
-      console.log('AlgoliaSearch: History item clicked:', item);
       triggerSearch(item);
       if (shouldShowDropdown) {
         setIsDropdownOpen(true);

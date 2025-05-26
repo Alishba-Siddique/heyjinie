@@ -1,401 +1,3 @@
-// // src/components/Auth/UnifiedAuthComponent.tsx
-// 'use client';
-
-// import { useState, useEffect } from 'react';
-// import { useForm } from 'react-hook-form';
-// import { useRouter } from 'next/navigation';
-// import Image from 'next/image';
-// import Link from 'next/link';
-// import { toast } from 'react-toastify';
-
-// import Logo from '../../../public/images/logo.png';
-// import { authService } from '@/services/auth.service';
-// import ResendOtp from '@/components/Auth/reset-otp';
-
-// type AuthMode = 'login' | 'signup' | 'reset' | 'verify-email';
-
-// interface AuthFormInputs {
-//   fullName?: string;
-//   email: string;
-//   password?: string;
-//   new_password?: string;
-//   confirm_password?: string;
-//   otp?: string;
-// }
-
-// const UnifiedAuthComponent: React.FC = () => {
-//   const [mode, setMode] = useState<AuthMode>('login');
-//   const [loading, setLoading] = useState(false);
-//   const [email, setEmail] = useState('');
-//   const [otpSent, setOtpSent] = useState(false);
-//   const router = useRouter();
-
-//   const {
-//     register,
-//     handleSubmit,
-//     watch,
-//     formState: { errors },
-//     reset,
-//     setValue,
-//   } = useForm<AuthFormInputs>();
-
-//   useEffect(() => {
-//     reset();
-//     setOtpSent(false);
-
-//     // Set the email value in the form when in verify-email mode
-//     if (email && mode === 'verify-email') {
-//       setValue('email', email, { shouldValidate: false }); // Set value and prevent immediate validation
-//     } else if (mode !== 'verify-email') {
-//       setEmail(''); // Clear email when not in verify-email mode.
-//     }
-//   }, [mode, reset, setValue, email]); // Add email to the dependency array
-
-//   const handleModeChange = (newMode: AuthMode) => {
-//   setMode(newMode);
-//   if (newMode === 'reset') {
-//     setValue('email', '');
-//   }
-// };
-
-// const handleAuthSubmit = async (data: AuthFormInputs) => {
-//   setLoading(true);
-
-//   try {
-//     switch (mode) {
-//       case 'login':
-//         const loginResponse = await authService.login({
-//           email: data.email,
-//           password: data.password || '',
-//         });
-//         if (loginResponse?.api_key) {
-//           router.push('/home');
-//           toast.success('Login successful');
-//         } else {
-//           toast.error('Login failed: Invalid credentials.');
-//         }
-//         break;
-
-//       case 'signup':
-//         const signupResponse = await authService.register({
-//           full_name: data.fullName || '',
-//           email: data.email,
-//           password: data.password || '',
-//         });
-//         if (signupResponse && signupResponse.id) {
-//           setEmail(data.email); // Save the email
-//           setMode('verify-email'); // Transition to verify-email mode
-//           toast.success('Signup successful. Please verify your email.');
-//         } else {
-//           toast.error('Signup failed.'); // Handle signup failure
-//         }
-//         break;
-
-//       case 'reset':
-//         if (!otpSent) {
-//           const emailValue = data.email;
-//           setEmail(emailValue);
-//           try {
-//             await authService.requestPasswordReset({ email: emailValue });
-//             setOtpSent(true);
-//             setValue('email', emailValue, { shouldValidate: false }); // prevent immediate validation
-//             toast.success('OTP sent to your email');
-//           } catch (error: any) {
-//             const errorMessage =
-//               error?.response?.data?.message ||
-//               error.message ||
-//               'Failed to send OTP. Please try again.';
-//             toast.error(`OTP sending failed: ${errorMessage}`);
-//           }
-//           break;
-//         }
-
-//         if (data.new_password !== data.confirm_password) {
-//           toast.error('Passwords do not match');
-//           break;
-//         }
-
-//         try {
-//           await authService.resetPassword({
-//             email: email || data.email,
-//             otp: Number(data.otp || 0),
-//             new_password: data.new_password || '',
-//             confirm_password: data.confirm_password || '',
-//           });
-//           setMode('login');
-//           toast.success('Password reset successful');
-//         } catch (error: any) {
-//           const errorMessage =
-//             error?.response?.data?.message ||
-//             error.message ||
-//             'Password reset failed. Please try again.';
-//           toast.error(`Password reset failed: ${errorMessage}`);
-//         }
-//         break;
-
-//       case 'verify-email':
-//         try {
-//           await authService.verifyEmail({
-//             email: email || data.email,
-//             otp: data.otp || '',
-//           });
-
-//           // Set tour flag here after successful verification
-//           localStorage.setItem('showTourAfterSignup', 'true');
-
-//           router.push('/tour');
-//           toast.success('Email verified successfully');
-//         } catch (error: any) {
-//           const errorMessage =
-//             error?.response?.data?.message ||
-//             error.message ||
-//             'Email verification failed. Please try again.';
-//           toast.error(`Email verification failed: ${errorMessage}`);
-//         }
-//         break;
-//     }
-//   } catch (error: any) {
-//     const errorMessage =
-//       error?.response?.data?.message ||
-//       error.message ||
-//       'An unexpected error occurred.';
-//     toast.error(errorMessage);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-//   const renderAuthForm = () => {
-//     const emailValidation = {
-//       required: 'Email is required',
-//       pattern: {
-//         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-//         message: 'Invalid email format',
-//       },
-//     };
-//     const passwordValidation = {
-//       required: 'Password is required',
-//       minLength: {
-//         value: 8,
-//         message: 'Password must be at least 8 characters',
-//       },
-//     };
-//     const fullNameValidation = {
-//       required: 'Full Name is required',
-//       minLength: {
-//         value: 2,
-//         message: 'Full name must be at least 2 characters',
-//       },
-//     };
-
-//     switch (mode) {
-//       case 'login':
-//         return (
-//           <div className="form-group flex flex-col gap-4">
-//             <input
-//               type="email"
-//               placeholder="Email"
-//               {...register('email', emailValidation)}
-//               className="form-control"
-//             />
-//             {errors.email && <p className="error">{errors.email.message}</p>}
-//             <input
-//               type="password"
-//               placeholder="Password"
-//               {...register('password', passwordValidation)}
-//               className="form-control"
-//             />
-//             {errors.password && (
-//               <p className="error">{errors.password.message}</p>
-//             )}
-//             <Link
-//               href="#"
-//               className="flex justify-end cursor-pointer"
-//               onClick={() => handleModeChange('reset')}
-//             >
-//               Forgot Password?
-//             </Link>
-//             <button
-//               type="submit"
-//               className="at-btn at-btn-lg"
-//               disabled={loading}
-//             >
-//               {loading ? 'Signing in...' : 'Sign In'}
-//             </button>
-//             <div className="text-center cursor-pointer">
-//               <Link href="#" onClick={() => handleModeChange('signup')}>
-//                 Don't have an account?<u className="ml-1"> Sign Up</u>
-//               </Link>
-//             </div>
-//           </div>
-//         );
-
-//       case 'signup':
-//         return (
-//           <div className="form-group flex flex-col gap-4">
-//             <input
-//               type="text"
-//               placeholder="Full Name"
-//               {...register('fullName', fullNameValidation)}
-//               className="form-control"
-//             />
-//             {errors.fullName && (
-//               <p className="error">{errors.fullName.message}</p>
-//             )}
-//             <input
-//               type="email"
-//               placeholder="Email"
-//               {...register('email', emailValidation)}
-//               className="form-control"
-//             />
-//             {errors.email && <p className="error">{errors.email.message}</p>}
-//             <input
-//               type="password"
-//               placeholder="Password"
-//               {...register('password', passwordValidation)}
-//               className="form-control"
-//             />
-//             {errors.password && (
-//               <p className="error">{errors.password.message}</p>
-//             )}
-//             <button
-//               type="submit"
-//               className="at-btn at-btn-lg"
-//               disabled={loading}
-//             >
-//               {loading ? 'Signing up...' : 'Sign Up'}
-//             </button>
-//             <div className="text-center cursor-pointer">
-//               <Link href="#" onClick={() => handleModeChange('login')}>
-//                 Already have an account?
-//               </Link>
-//             </div>
-//           </div>
-//         );
-
-//       case 'reset':
-//         return (
-//           <div className="form-group flex flex-col gap-4">
-//             <input
-//               type="email"
-//               placeholder="Email"
-//               {...register('email', emailValidation)}
-//               className="form-control"
-//               disabled={otpSent}
-//             />
-//             {errors.email && <p className="error">{errors.email.message}</p>}
-//             {otpSent && (
-//               <div className="form-group flex flex-col gap-4">
-//                 <input
-//                   type="text"
-//                   placeholder="Enter OTP"
-//                   {...register('otp', { required: 'OTP is required' })}
-//                   className="form-control"
-//                 />
-//                 {errors.otp && <p className="error">{errors.otp.message}</p>}
-//                 <input
-//                   type="password"
-//                   placeholder="New Password"
-//                   {...register('new_password', passwordValidation)}
-//                   className="form-control"
-//                 />
-//                 {errors.new_password && (
-//                   <p className="error">{errors.new_password.message}</p>
-//                 )}
-//                 <input
-//                   type="password"
-//                   placeholder="Confirm Password"
-//                   {...register('confirm_password', {
-//                     required: 'Confirm password is required',
-//                     validate: (val) =>
-//                       watch('new_password') === val || 'Passwords do not match',
-//                   })}
-//                   className="form-control"
-//                 />
-//                 {errors.confirm_password && (
-//                   <p className="error">{errors.confirm_password.message}</p>
-//                 )}
-//                 <button
-//                   type="submit"
-//                   className="at-btn at-btn-lg"
-//                   disabled={loading}
-//                 >
-//                   {loading ? 'Resetting...' : 'Reset Password'}
-//                 </button>
-//                 <ResendOtp email={email} />
-//               </div>
-//             )}
-//             {!otpSent && (
-//               <button
-//                 type="submit"
-//                 className="at-btn at-btn-lg"
-//                 disabled={loading}
-//               >
-//                 Send OTP
-//               </button>
-//             )}
-//             <div className="text-center cursor-pointer">
-//               <Link href="#" onClick={() => handleModeChange('login')}>
-//                 Back to Login
-//               </Link>
-//             </div>
-//           </div>
-//         );
-
-//       case 'verify-email':
-//         return (
-//           <div className="form-group flex flex-col gap-4">
-//             <input
-//               type="email"
-//               placeholder="Email"
-//               {...register('email', {
-//                 ...emailValidation,
-//                 value: email, //Dynamically passed email
-//               })}
-//               className="form-control"
-//               readOnly //Prevents manual edit of email
-//             />
-//             {errors.email && <p className="error">{errors.email.message}</p>}
-//             <input
-//               type="text"
-//               placeholder="Enter OTP"
-//               {...register('otp', { required: 'OTP is required' })}
-//               className="form-control"
-//             />
-//             {errors.otp && <p className="error">{errors.otp.message}</p>}
-//             <button
-//               type="submit"
-//               className="at-btn at-btn-lg"
-//               disabled={loading}
-//             >
-//               {loading ? 'Verifying...' : 'Verify Email'}
-//             </button>
-//             <ResendOtp email={email} />
-//           </div>
-//         );
-//     }
-//   };
-
-//   return (
-//     <div className="at-loginwrapper z-50">
-//       <div className="at-login">
-//         <div className="at-loginform">
-//           <form onSubmit={handleSubmit(handleAuthSubmit)}>
-//             <fieldset>
-//               <legend className="flex justify-center">
-//                 <Image src={Logo} alt="Logo" />
-//               </legend>
-//               {renderAuthForm()}
-//             </fieldset>
-//           </form>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default UnifiedAuthComponent;
-
 // src/components/Auth/UnifiedAuthComponent.tsx
 'use client';
 
@@ -459,6 +61,7 @@ const UnifiedAuthComponent: React.FC = () => {
   const router = useRouter();
   const googleButtonDiv = useRef<HTMLDivElement>(null);
   const googleSignUpButtonDiv = useRef<HTMLDivElement>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const {
     register,
@@ -550,9 +153,9 @@ const UnifiedAuthComponent: React.FC = () => {
     script.onload = () => {
       // Add a slight delay to ensure the Google API is fully loaded
       // setTimeout(() => {
-        if (initializeGoogleSignIn()) {
-          setGoogleInitialized(true);
-        }
+      if (initializeGoogleSignIn()) {
+        setGoogleInitialized(true);
+      }
       // }, 100);
     };
 
@@ -624,9 +227,11 @@ const UnifiedAuthComponent: React.FC = () => {
           const loginData = await authService.login({
             email: data.email,
             password: data.password || '',
-            remember: data.rememberMe || false, // Pass the remember me flag to your login service
+            remember: data.rememberMe || false,
           });
-          router.push('/home');
+          // Set auth state before navigation
+          setIsAuthenticated(true);
+          router.replace('/home');
           toast.success('Login successful');
           break;
 
@@ -651,12 +256,16 @@ const UnifiedAuthComponent: React.FC = () => {
               setValue('email', emailValue, { shouldValidate: false });
               toast.success('OTP sent to your email');
             } catch (error: any) {
-              toast.error(`OTP sending failed: ${error.message}`);
+              toast.error(
+                error.response?.data?.message ||
+                  error.message ||
+                  'Failed to send OTP'
+              );
+              return;
             }
           } else {
             if (data.new_password !== data.confirm_password) {
               toast.error('Passwords do not match');
-              setLoading(false);
               return;
             }
             try {
@@ -669,7 +278,12 @@ const UnifiedAuthComponent: React.FC = () => {
               setMode('login');
               toast.success('Password reset successful. Please login.');
             } catch (error: any) {
-              toast.error(`Password reset failed: ${error.message}`);
+              toast.error(
+                error.response?.data?.message ||
+                  error.message ||
+                  'Password reset failed'
+              );
+              return;
             }
           }
           break;
@@ -681,71 +295,30 @@ const UnifiedAuthComponent: React.FC = () => {
               otp: data.otp || '',
             });
             localStorage.setItem('showTourAfterSignup', 'true');
-            router.push('/tour');
+            // Set auth state before navigation
+            setIsAuthenticated(true);
+            router.replace('/tour');
             toast.success('Email verified successfully. Redirecting...');
           } catch (error: any) {
-            toast.error(`Email verification failed: ${error.message}`);
+            toast.error(
+              error.response?.data?.message ||
+                error.message ||
+                'Email verification failed'
+            );
+            return;
           }
           break;
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        const serverMessage = error.response.data.message || error.message;
-        toast.error(serverMessage);
-      } else {
-        toast.error(error.message || 'An unexpected error occurred.');
-      }
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        'An unexpected error occurred';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
-
-  // // Handler for Google Sign-In
-  // const handleGoogleSignIn = async (response: any) => {
-  //   setGoogleLoading(true);
-
-  //   if (!response.credential) {
-  //     console.error('Google Sign-In failed: No credential received.');
-  //     toast.error('Google Sign-In failed. Please try again.');
-  //     setGoogleLoading(false);
-  //     return;
-  //   }
-
-  //   const idToken = response.credential;
-
-  //   try {
-  //     const decodedToken = jwtDecode<GoogleTokenPayload>(idToken);
-
-  //     const { email, name } = decodedToken;
-
-  //     if (!email || !name) {
-  //       throw new Error('Email or name missing from Google token.');
-  //     }
-
-  //     const fcmToken = localStorage.getItem('fcm_token') || null;
-
-  //     const payload = {
-  //       idToken: idToken,
-  //       email: email,
-  //       full_name: name,
-  //       fcm_token: fcmToken,
-  //       gender: null, // Set gender to null as it's optional and not in basic profile
-  //     };
-
-  //     await authService.googleLogin(payload);
-
-  //     toast.success('Google Sign-In Successful!');
-  //     router.push('/home');
-  //   } catch (error: any) {
-  //     console.error(
-  //       'Error during Google Sign-In processing or backend call:',
-  //       error
-  //     );
-  //     toast.error(`Google Sign-In failed: ${error.message}`);
-  //   } finally {
-  //     setGoogleLoading(false);
-  //   }
-  // };
 
   // Modified Google Sign-In handler
   const handleGoogleSignIn = async (response: any) => {
@@ -1257,7 +830,13 @@ const UnifiedAuthComponent: React.FC = () => {
     <div className="at-loginwrapper z-50">
       <div className="at-login">
         <div className="at-loginform">
-          <form onSubmit={handleSubmit(handleAuthSubmit)} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault(); // Prevent default form submission
+              handleSubmit(handleAuthSubmit)(e);
+            }}
+            className="space-y-6"
+          >
             <fieldset className="flex flex-col">
               <legend className="flex justify-center mb-6">
                 <Image

@@ -53,34 +53,15 @@ const CartPage = () => {
     const storedMessagesRaw = localStorage.getItem(
       'selectedPersonalizedMessages'
     );
-    console.log(
-      '[CartPage - loadPersonalizedMessagesFromStorage] Raw value from localStorage:',
-      storedMessagesRaw
-    );
     try {
       // Default to null if storedMessagesRaw is empty/null to avoid parsing "null"
       const messages = storedMessagesRaw ? JSON.parse(storedMessagesRaw) : {};
-      console.log(
-        '[CartPage - loadPersonalizedMessagesFromStorage] Parsed messages:',
-        messages
-      );
-      console.log(
-        '[CartPage - loadPersonalizedMessagesFromStorage] Type of parsed:',
-        typeof messages,
-        'Is Array:',
-        Array.isArray(messages)
-      );
-
       if (
         messages &&
         typeof messages === 'object' &&
         !Array.isArray(messages)
       ) {
         setLocalPersonalizedMessages(messages);
-        console.log(
-          '[CartPage - loadPersonalizedMessagesFromStorage] SUCCESS: Set localPersonalizedMessages state with OBJECT:',
-          messages
-        );
       } else {
         console.warn(
           '[CartPage - loadPersonalizedMessagesFromStorage] WARN: Parsed value is NOT a valid object. Setting empty state. Found:',
@@ -105,15 +86,8 @@ const CartPage = () => {
 
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'selectedPersonalizedMessages') {
-        console.log(
-          "[CartPage] Storage event detected for 'selectedPersonalizedMessages'. Reloading local state."
-        );
         loadPersonalizedMessagesFromStorage();
       }
-      // You also had a listener for 'personalizedMessages' - re-add if needed for other purposes
-      // if (event.key === 'personalizedMessages') {
-      //   console.log("[CartPage] Storage event triggered for 'personalizedMessages'");
-      // }
     };
     window.addEventListener('storage', handleStorageChange);
     return () => {
@@ -127,9 +101,6 @@ const CartPage = () => {
       cartItems.length > 0 &&
       typeof updateItemPersonalization === 'function'
     ) {
-      console.log(
-        '[CartPage Sync Effect] Attempting to sync CartContext with localPersonalizedMessages.'
-      );
       let contextUpdated = false;
       cartItems.forEach((cartItem: CartItemForDisplay) => {
         const personalizationFromStorage =
@@ -139,9 +110,6 @@ const CartPage = () => {
           JSON.stringify(cartItem.personalization) !==
           JSON.stringify(personalizationFromStorage)
         ) {
-          console.log(
-            `[CartPage Sync Effect] Discrepancy found for ${cartItem._id}. Updating CartContext.`
-          );
           updateItemPersonalization(
             cartItem._id,
             personalizationFromStorage || null
@@ -149,15 +117,7 @@ const CartPage = () => {
           contextUpdated = true;
         }
       });
-      if (contextUpdated) {
-        console.log(
-          '[CartPage Sync Effect] CartContext items were updated with new personalizations.'
-        );
-      } else {
-        console.log(
-          '[CartPage Sync Effect] No personalization discrepancies found requiring CartContext update.'
-        );
-      }
+    
     }
   }, [cartItems, localPersonalizedMessages, updateItemPersonalization]); // Dependencies: run when these change.
 
@@ -340,10 +300,6 @@ const CartPage = () => {
                         <button
                           className="at-btn at-btnpersonal"
                           onClick={() => {
-                            console.log(
-                              'Personalizing product from cart page:',
-                              item._id
-                            );
                             handlePersonalize(item._id);
                           }}
                         >

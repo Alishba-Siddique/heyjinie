@@ -1,8 +1,15 @@
 //src/app/page.tsx
 'use client';
 
-import UnifiedAuthComponent from '@/components/Auth/UnifiedAuthComponent';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return <main className="at-main">{<UnifiedAuthComponent />}</main>;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/auth');
+  }, [router]);
+
+  return null;
 }

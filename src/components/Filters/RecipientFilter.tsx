@@ -41,11 +41,8 @@ const RecipientFilter: React.FC = () => {
   }, []);
 
   const handleSelect = (recipientTag: string) => {
-    console.log(`RecipientFilter: Setting search term to "${recipientTag}"`);
-    triggerSearch(recipientTag); // Use the context function
-    // Optional: Scroll to top or give visual feedback
+    triggerSearch(recipientTag); 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    //  toast.info(`Searching for gifts for ${recipientTag}...`);
   };
   const backgroundColors = ['#FFD05E', '#88C1FD', '#FD9399', '#FF834B'];
 

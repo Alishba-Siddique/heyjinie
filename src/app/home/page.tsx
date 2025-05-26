@@ -65,7 +65,7 @@
 import { useState } from 'react'; // Import useState
 import UnifiedPage from '@/components/Auth/UnifiedPage';
 import HomeCategories from '@/components/Product/home_categories';
-import TopPicksProducts from '@/components/page-ui/top_rated_products';
+import TopPicksProducts from '@/components/page-ui/trending_products';
 import BrandList from '@/components/Product/brands_list';
 import UpcomingEvents from '@/components/page-ui/events_page/upcoming_events';
 import withAuth from '@/hoc/withAuth';

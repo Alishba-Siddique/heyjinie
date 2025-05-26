@@ -41,11 +41,8 @@ const OccasionFilter: React.FC = () => {
   }, []);
 
   const handleSelect = (occasionTag: string) => {
-    console.log(`OccasionFilter: Setting search term to "${occasionTag}"`);
     triggerSearch(occasionTag); // Use the context function
-    // Optional: Scroll to top or give visual feedback
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    //  toast.info(`Searching for ${occasionTag} gifts...`);
   };
   const backgroundColors = ['#FFD05E', '#88C1FD', '#FD9399', '#FF834B'];
 

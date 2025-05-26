@@ -1,2 +1,2 @@
-# HeyJinnie 🌟
+# HeyJinie 🌟
 

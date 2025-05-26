@@ -192,7 +192,7 @@ const PaymentSuccessPageContent = () => {
     const finalizeOrder = async () => {
       // --- Guard against multiple calls ---
       if (hasConfirmed.current) {
-        console.log('Confirmation already attempted, skipping.');
+        // console.log('Confirmation already attempted, skipping.');
         return;
       }
       hasConfirmed.current = true; // Mark as attempted immediately
@@ -219,18 +219,13 @@ const PaymentSuccessPageContent = () => {
           return;
         }
 
-        console.log(`Attempting to confirm order: ${finalOrderId}, payment: ${finalPaymentId}`); // Log IDs being used
+        // console.log(`Attempting to confirm order: ${finalOrderId}, payment: ${finalPaymentId}`); // Log IDs being used
 
         // Confirm the order
-        const response = await confirmOrder(finalOrderId, finalPaymentId); // Assuming confirmOrder throws on error
-
-        // If confirmOrder doesn't throw but returns a falsy value on failure:
-        // if (!response || !response.success) { // Adjust based on actual return value
-        //   throw new Error(response?.message || 'Order confirmation failed');
-        // }
+        const response = await confirmOrder(finalOrderId, finalPaymentId);
 
         // ---- Success Path ----
-        console.log('Order confirmed successfully via API.');
+        // console.log('Order confirmed successfully via API.');
         localStorage.removeItem('order_id');
         localStorage.removeItem('payment_id');
         clearCart();
@@ -254,7 +249,7 @@ const PaymentSuccessPageContent = () => {
 
     // Cleanup function (optional but good practice)
     return () => {
-        console.log('Cleanup function for PaymentSuccessPageContent effect.');
+        // console.log('Cleanup function for PaymentSuccessPageContent effect.');
         // You could potentially add logic here if needed when the component unmounts
     };
 

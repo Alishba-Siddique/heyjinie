@@ -33,7 +33,7 @@ const UnifiedPage: React.FC<UnifiedPageProps> = ({ children }) => {
       } else {
         toast.error('Failed to retrieve user data. Please log in again.');
         clearSession();
-        router.push('/auth');
+        // router.push('/auth');
       }
     }
   }, [isLoading, router]);
