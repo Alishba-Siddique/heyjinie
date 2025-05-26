@@ -69,11 +69,6 @@ const MessagesPage = () => {
   const handleSelectMessage = (message: PersonalizedMessage[]) => {
     if (!currentProductId) return;
 
-    // // Save to localStorage
-    // localStorage.setItem(
-    //   'selectedPersonalizedMessages',
-    //   JSON.stringify(message)
-    // );
 
     // Clean up
     localStorage.removeItem('currentItemId');

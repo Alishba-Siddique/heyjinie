@@ -174,4 +174,3 @@ function ResetPassword() {
 }
 
 export default ResetPassword;
-// export default withAuth(ResetPassword);

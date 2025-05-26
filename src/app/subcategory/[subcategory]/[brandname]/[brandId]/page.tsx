@@ -30,9 +30,6 @@ const BrandDetailSubPage = () => {
       } else {
         toast.error('Failed to retrieve user data. Please log in again.');
         clearSession();
-        // router.prefetch('/login');
-        // router.push('/login');
-        router.prefetch('/auth');
         router.push('/auth');
       }
     }

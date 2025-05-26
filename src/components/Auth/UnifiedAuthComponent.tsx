@@ -548,7 +548,7 @@ const UnifiedAuthComponent: React.FC = () => {
               </div>
               <Link
                 href="#"
-                className="flex justify-end cursor-pointer"
+                className="flex ml-2 justify-end cursor-pointer"
                 onClick={() => handleModeChange('reset')}
               >
                 Forgot Password?

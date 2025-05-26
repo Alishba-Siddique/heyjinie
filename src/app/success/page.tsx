@@ -1,176 +1,3 @@
-// // 'use client';
-// // import { useEffect, useState } from 'react';
-// // import { useRouter, useSearchParams } from 'next/navigation';
-// // import { confirmOrder } from '@/services/api.service';
-// // import { useCart } from '@/context/CartContext';
-// // import { toast } from 'react-toastify';
-
-// // const PaymentSuccessPage = () => {
-// //   const router = useRouter();
-// //   const searchParams = useSearchParams();
-// //   const { clearCart } = useCart();
-// //   const [processing, setProcessing] = useState(true);
-
-// //   useEffect(() => {
-// //     const finalizeOrder = async () => {
-// //       try {
-// //         setProcessing(true);
-
-// //         // Get order_id and payment_id from URL parameters
-// //         const orderId = searchParams.get('order_id');
-// //         const paymentId = searchParams.get('payment_id');
-
-// //         // If parameters are missing, try to get from localStorage (fallback)
-// //         const storedOrderId = localStorage.getItem('order_id');
-// //         const storedPaymentId = localStorage.getItem('payment_id');
-
-// //         // If we don't have the required IDs, redirect to checkout
-// //         if ((!orderId || !paymentId) && (!storedOrderId || !storedPaymentId)) {
-// //           toast.error('Order information is missing');
-// //           router.push('/checkout');
-// //           return;
-// //         }
-
-// //         // Confirm the order
-// //         const response = await confirmOrder(
-// //           orderId || storedOrderId || '',
-// //           paymentId || storedPaymentId || ''
-// //         );
-
-// //         if (response) {
-// //           // Clean up localStorage
-// //           localStorage.removeItem('order_id');
-// //           localStorage.removeItem('payment_id');
-
-// //           // Clear cart and redirect to thank you page
-// //           clearCart();
-// //           router.push('/thankyou');
-// //         } else {
-// //           throw new Error('Order confirmation failed');
-// //         }
-// //       } catch (error: any) {
-// //         console.error('Order confirmation error:', error);
-// //         toast.error(error.message || 'Failed to confirm order');
-// //         router.push('/checkout');
-// //       } finally {
-// //         setProcessing(false);
-// //       }
-// //     };
-
-// //     finalizeOrder();
-// //   }, []);
-
-// //   return (
-// //     <div className="at-maincontentwrapper flex flex-col items-center justify-center">
-// //       {processing ? (
-// //         <>
-// //           {/* <Loader /> */}
-// //           {
-// //             <p className="mt-4 text-lg text-center">
-// //               Finalizing your order, please wait...
-// //             </p>
-// //           }
-// //         </>
-// //       ) : (
-// //         <p className="text-lg text-center">
-// //           Redirecting to your order confirmation...
-// //         </p>
-// //       )}
-// //     </div>
-// //   );
-// // };
-
-// // export default PaymentSuccessPage;
-
-// //src/app/success/page.tsx
-// 'use client';
-// import { useEffect, useState, Suspense } from 'react';
-// import { useRouter, useSearchParams } from 'next/navigation';
-// import { confirmOrder } from '@/services/api.service';
-// import { useCart } from '@/context/CartContext';
-// import { toast } from 'react-toastify';
-// import Loader from '@/components/page-ui/Loader';
-
-
-// const PaymentSuccessPageContent = () => {
-//   const router = useRouter();
-//   const searchParams = useSearchParams();
-//   const { clearCart } = useCart();
-//   const [processing, setProcessing] = useState(true);
-
-//   useEffect(() => {
-//     const finalizeOrder = async () => {
-//       try {
-//         setProcessing(true);
-        
-//         // Get order_id and payment_id from URL parameters
-//         const orderId = searchParams.get('order_id');
-//         const paymentId = searchParams.get('payment_id');
-        
-//         // If parameters are missing, try to get from localStorage (fallback)
-//         const storedOrderId = localStorage.getItem('order_id');
-//         const storedPaymentId = localStorage.getItem('payment_id');
-        
-//         if ((!orderId || !paymentId) && (!storedOrderId || !storedPaymentId)) {
-//           toast.error('Order information is missing');
-//           router.push('/checkout');
-//           return;
-//         }
-        
-//         // Confirm the order
-//         const response = await confirmOrder(
-//           orderId || storedOrderId || '',
-//           paymentId || storedPaymentId || ''
-//         );
-        
-//         if (response) {
-//           localStorage.removeItem('order_id');
-//           localStorage.removeItem('payment_id');
-//           clearCart();
-//           router.push('/thankyou');
-//         } else {
-//           throw new Error('Order confirmation failed');
-//         }
-//       } catch (error: any) {
-//         console.error('Order confirmation error:', error);
-//         toast.error(error.message || 'Failed to confirm order');
-//         router.push('/checkout');
-//       } finally {
-//         setProcessing(false);
-//       }
-//     };
-
-//     finalizeOrder();
-//   }, []);
-
-//   return (
-//     <div className="at-maincontentwrapper min-h-screen flex flex-col items-center justify-center">
-//       {processing ? (
-//         <>
-//           <p className="mt-4 text-xl text-center">Finalizing your order, please wait...</p>
-//           {/* <Loader /> */}
-//         </>
-//       ) : (
-//         <>
-//         <p className="text-xl text-center">Redirecting to your order confirmation...</p>
-//         {/* <Loader /> */}
-//         </>
-        
-//       )}
-//     </div>
-//   );
-// };
-
-// // Wrap with Suspense
-// const PaymentSuccessPage = () => (
-//   <Suspense fallback={<p className="text-center"><Loader /></p>}>
-//     <PaymentSuccessPageContent />
-//   </Suspense>
-// );
-
-// export default PaymentSuccessPage;
-
-
 // src/app/success/page.tsx
 'use client';
 import { useEffect, useState, Suspense, useRef } from 'react'; // Import useRef
@@ -236,21 +63,15 @@ const PaymentSuccessPageContent = () => {
         console.error('Order confirmation error in finalizeOrder:', error);
         const message = error.message || 'Failed to confirm order. Please contact support if payment was successful.';
         toast.error(message);
-        setErrorMsg(message); // Show error message to user
-        // Don't redirect immediately on error, let the user see the message
-        // router.push('/checkout');
+        setErrorMsg(message); 
         setProcessing(false); // Stop processing indicator
       }
-      // Removed finally block as navigation handles the processing state on success
-      // and the catch block handles it on error.
     };
 
     finalizeOrder();
 
     // Cleanup function (optional but good practice)
     return () => {
-        // console.log('Cleanup function for PaymentSuccessPageContent effect.');
-        // You could potentially add logic here if needed when the component unmounts
     };
 
   // Removed router and searchParams from dependency array if they don't change

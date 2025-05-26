@@ -138,11 +138,9 @@ export default function ProfileForm() {
     let isMounted = true;
     if (countriesLoaded && !userDataInitialized) {
       const initializeUserData = () => {
-        // DEBUG: console.log('[DEBUG] Initializing user data from cookie...');
         try {
           const userDataFromCookie = getCookie('userData');
           const parsedUserData = parseUserDataCookie(userDataFromCookie);
-          // DEBUG: console.log('[DEBUG] Parsed user data from cookie:', parsedUserData);
 
           if (isMounted && parsedUserData) {
             let imageToSet =
@@ -161,12 +159,10 @@ export default function ProfileForm() {
               country: parsedUserData.country || '', // Ensure these are passed to reset
               city: parsedUserData.city || '', // Ensure these are passed to reset
             };
-            // DEBUG: console.log('[DEBUG] Resetting form with mappedData:', mappedData);
             reset(mappedData); // THIS SETS THE RHF STATE including country and city
             setUserDataInitialized(true);
           } else if (isMounted) {
             // No user data / first time user
-            // DEBUG: console.log('[DEBUG] No parsed user data from cookie or not mounted.');
             setUserDataInitialized(true); // Mark as initialized (with no specific data)
           }
         } catch (error) {
@@ -185,14 +181,10 @@ export default function ProfileForm() {
   // 3. Update available cities when selectedCountryName (from RHF) changes
   //    This effect also validates/clears the RHF city if it's inconsistent.
   useEffect(() => {
-    // DEBUG: console.log(`[DEBUG CityEffect RUNNING] RHF Country: "${selectedCountryName}", RHF City: "${selectedCity}", CountriesLoaded: ${countriesLoaded}`);
-
     if (selectedCountryName && countriesLoaded) {
       const countryObj = allCountriesList.find(
         (c) => c.name === selectedCountryName
       );
-      // DEBUG: console.log(`[DEBUG CityEffect] Found countryObj for "${selectedCountryName}":`, countryObj);
-
       if (countryObj?.isoCode) {
         const citiesData = City.getCitiesOfCountry(countryObj.isoCode);
         let cityNamesForState: string[] = [];
@@ -200,7 +192,6 @@ export default function ProfileForm() {
           const uniqueCityNames = new Set(citiesData.map((c) => c.name));
           cityNamesForState = Array.from(uniqueCityNames).sort();
         }
-        // DEBUG: console.log(`[DEBUG CityEffect] Available cities for "${selectedCountryName}":`, cityNamesForState);
         setAvailableCities(cityNamesForState);
 
         // Now, validate the current RHF city (selectedCity) against these available cities
@@ -211,27 +202,20 @@ export default function ProfileForm() {
           const countryHasNoCitiesListed = cityNamesForState.length === 0;
 
           if (countryHasNoCitiesListed) {
-            // DEBUG: console.log(`[DEBUG CityEffect] Clearing city. Reason: Country '${selectedCountryName}' has NO cities listed by library. RHF City was: '${cityInRHF}'.`);
             setValue('city', '');
           } else if (!isCityValidForCountry) {
-            // DEBUG: console.log(`[DEBUG CityEffect] Clearing city. Reason: RHF City '${cityInRHF}' is NOT in the valid list for country '${selectedCountryName}'.`);
             setValue('city', '');
           }
           // If city is valid, do nothing, RHF already has the correct value.
         }
       } else {
         // Country name from RHF not found in our allCountriesList, or no isoCode
-        // DEBUG: console.log(`[DEBUG CityEffect] Country name '${selectedCountryName}' not found or no isoCode. Clearing cities.`);
         setAvailableCities([]);
         if (watch('city') !== '') setValue('city', '');
       }
     } else {
-      // No country selected or countries not loaded yet
-      // DEBUG: console.log(`[DEBUG CityEffect] No RHF country selected OR countries not loaded. Clearing cities.`);
       setAvailableCities([]);
       if (!selectedCountryName && watch('city') !== '') {
-        // If country is cleared, clear city
-        // DEBUG: console.log(`[DEBUG CityEffect] RHF Country is empty, clearing RHF City.`);
         setValue('city', '');
       }
     }
@@ -361,7 +345,6 @@ export default function ProfileForm() {
 
   const handleCancel = () => {
     if (originalUserData) {
-      // DEBUG: console.log('[DEBUG Cancel] Resetting to originalUserData:', originalUserData);
       reset({
         ...originalUserData,
         image:
@@ -372,7 +355,6 @@ export default function ProfileForm() {
       );
       setImageChanged(false);
     } else {
-      // DEBUG: console.log('[DEBUG Cancel] No originalUserData, resetting to schema defaults.');
       reset(
         profileFormSchema.parse({
           full_name: '',

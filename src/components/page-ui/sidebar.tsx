@@ -35,12 +35,12 @@
 // //         .hover-scrollbar {
 // //           overflow-y: auto;
 // //           overflow-x: hidden;
-// //           scrollbar-width: thin; 
-// //           -ms-overflow-style: none; 
+// //           scrollbar-width: thin;
+// //           -ms-overflow-style: none;
 // //         }
 
 // //         .hover-scrollbar::-webkit-scrollbar {
-// //           width: 0px; 
+// //           width: 0px;
 // //           transition: all 0.3s ease;
 // //         }
 
@@ -173,7 +173,7 @@
 // //                           fill="black"
 // //                         />
 // //                       </svg>
-// //                       <img src="/images/sidebar/shop-icon.svg" alt="shop" /> 
+// //                       <img src="/images/sidebar/shop-icon.svg" alt="shop" />
 // //                     </em>
 // //                     <span>Shop</span>
 // //                   </a>
@@ -671,7 +671,6 @@
 // // };
 
 // // export default withAuth(Sidebar);
-
 
 // // src/components/page-ui/sidebar.tsx
 // 'use client';
@@ -1191,7 +1190,7 @@ const Sidebar = () => {
           position: relative;
           display: inline-block;
         }
-        
+
         .tooltip {
           position: absolute;
           left: 100%;
@@ -1213,7 +1212,7 @@ const Sidebar = () => {
           border: 1px solid rgba(255, 255, 255, 0.1);
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-        
+
         .tooltip::before {
           content: '';
           position: absolute;
@@ -1223,30 +1222,30 @@ const Sidebar = () => {
           border: 6px solid transparent;
           border-right-color: rgba(0, 0, 0, 0.9);
         }
-        
+
         .tooltip-wrapper:hover .tooltip {
           opacity: 1;
           visibility: visible;
           transform: translateY(-50%) translateX(4px);
         }
-        
+
         /* Hide scrollbar for webkit browsers */
         .at-navigation::-webkit-scrollbar {
           display: none;
         }
-        
+
         /* Hide scrollbar for Firefox */
         .at-navigation {
           scrollbar-width: none;
           -ms-overflow-style: none;
         }
-        
+
         /* Remove any existing scrollbar styles */
         .at-sidebar::-webkit-scrollbar,
         .at-sidebarwrapper::-webkit-scrollbar {
           display: none !important;
         }
-        
+
         .at-sidebar,
         .at-sidebarwrapper {
           scrollbar-width: none !important;
@@ -1288,8 +1287,7 @@ const Sidebar = () => {
           <div className="at-navigation">
             <nav className="at-nav">
               <ul>
-                <li>
-                  <div className="tooltip-wrapper">
+                <li className="tooltip-wrapper">
                     <a
                       href="/home"
                       className={currentPath === '/home' ? 'at-active' : ''}
@@ -1311,10 +1309,8 @@ const Sidebar = () => {
                       <span>Home</span>
                     </a>
                     {!isActive && <div className="tooltip">Home</div>}
-                  </div>
                 </li>
-                <li>
-                  <div className="tooltip-wrapper">
+                <li className="tooltip-wrapper">
                     <a
                       href="/events"
                       className={currentPath === '/events' ? 'at-active' : ''}
@@ -1340,10 +1336,8 @@ const Sidebar = () => {
                       <span>Events</span>
                     </a>
                     {!isActive && <div className="tooltip">Events</div>}
-                  </div>
                 </li>
-                <li>
-                  <div className="tooltip-wrapper">
+                <li className="tooltip-wrapper">
                     <a
                       href="/personalize"
                       className={
@@ -1379,10 +1373,8 @@ const Sidebar = () => {
                       <span>Personalize</span>
                     </a>
                     {!isActive && <div className="tooltip">Personalize</div>}
-                  </div>
                 </li>
-                <li>
-                  <div className="tooltip-wrapper">
+                <li className="tooltip-wrapper">
                     <a
                       href="/my-gifts"
                       className={currentPath === '/my-gifts' ? 'at-active' : ''}
@@ -1420,10 +1412,8 @@ const Sidebar = () => {
                       <span>My Gifts</span>
                     </a>
                     {!isActive && <div className="tooltip">My Gifts</div>}
-                  </div>
                 </li>
-                <li>
-                  <div className="tooltip-wrapper">
+                <li className="tooltip-wrapper">
                     <a
                       href="/order-history"
                       className={
@@ -1462,51 +1452,48 @@ const Sidebar = () => {
                       <span>Order History</span>
                     </a>
                     {!isActive && <div className="tooltip">Order History</div>}
-                  </div>
                 </li>
-                <li>
-                  <div className="tooltip-wrapper">
-                    <a
-                      href="/contact-us"
-                      className={currentPath === '/contact-us' ? 'at-active' : ''}
-                    >
-                      <em>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                        >
-                          <g clipPath="url(#clip0_3248_7002)">
-                            <path
-                              d="M19.8239 3.97351L13.7583 10L19.8239 16.0266C19.9335 15.7974 20.0001 15.544 20.0001 15.2735V4.7266C20.0001 4.45601 19.9335 4.20269 19.8239 3.97351Z"
-                              fill="white"
-                            />
-                            <path
-                              d="M18.2423 2.96875H1.75797C1.48738 2.96875 1.23406 3.03527 1.00488 3.14492L8.75735 10.8583C9.44281 11.5438 10.5575 11.5438 11.243 10.8583L18.9954 3.14492C18.7663 3.03527 18.5129 2.96875 18.2423 2.96875Z"
-                              fill="white"
-                            />
-                            <path
-                              d="M0.176172 3.97351C0.0665234 4.20269 0 4.45601 0 4.7266V15.2735C0 15.5441 0.0665234 15.7974 0.176172 16.0266L6.24176 10L0.176172 3.97351Z"
-                              fill="white"
-                            />
-                            <path
-                              d="M12.9298 10.8286L12.0715 11.6869C10.9294 12.8291 9.0709 12.8291 7.92875 11.6869L7.07047 10.8286L1.00488 16.8551C1.23406 16.9648 1.48738 17.0313 1.75797 17.0313H18.2423C18.5129 17.0313 18.7663 16.9648 18.9954 16.8551L12.9298 10.8286Z"
-                              fill="white"
-                            />
-                          </g>
-                          <defs>
-                            <clipPath id="clip0_3248_7002">
-                              <rect width="20" height="20" fill="white" />
-                            </clipPath>
-                          </defs>
-                        </svg>
-                      </em>
-                      <span>Contact Us</span>
-                    </a>
-                    {!isActive && <div className="tooltip">Contact Us</div>}
-                  </div>
+                <li className="tooltip-wrapper">
+                  <a
+                    href="/contact-us"
+                    className={currentPath === '/contact-us' ? 'at-active' : ''}
+                  >
+                    <em>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                      >
+                        <g clipPath="url(#clip0_3248_7002)">
+                          <path
+                            d="M19.8239 3.97351L13.7583 10L19.8239 16.0266C19.9335 15.7974 20.0001 15.544 20.0001 15.2735V4.7266C20.0001 4.45601 19.9335 4.20269 19.8239 3.97351Z"
+                            fill="white"
+                          />
+                          <path
+                            d="M18.2423 2.96875H1.75797C1.48738 2.96875 1.23406 3.03527 1.00488 3.14492L8.75735 10.8583C9.44281 11.5438 10.5575 11.5438 11.243 10.8583L18.9954 3.14492C18.7663 3.03527 18.5129 2.96875 18.2423 2.96875Z"
+                            fill="white"
+                          />
+                          <path
+                            d="M0.176172 3.97351C0.0665234 4.20269 0 4.45601 0 4.7266V15.2735C0 15.5441 0.0665234 15.7974 0.176172 16.0266L6.24176 10L0.176172 3.97351Z"
+                            fill="white"
+                          />
+                          <path
+                            d="M12.9298 10.8286L12.0715 11.6869C10.9294 12.8291 9.0709 12.8291 7.92875 11.6869L7.07047 10.8286L1.00488 16.8551C1.23406 16.9648 1.48738 17.0313 1.75797 17.0313H18.2423C18.5129 17.0313 18.7663 16.9648 18.9954 16.8551L12.9298 10.8286Z"
+                            fill="white"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_3248_7002">
+                            <rect width="20" height="20" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </em>
+                    <span>Contact Us</span>
+                  </a>
+                  {!isActive && <div className="tooltip">Contact Us</div>}
                 </li>
               </ul>
             </nav>

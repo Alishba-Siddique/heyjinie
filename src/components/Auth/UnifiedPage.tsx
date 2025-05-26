@@ -1,36 +1,3 @@
-// // src/components/UnifiedPage.tsx
-// 'use client';
-
-// import HomeSlider from '@/components/page-ui/home_slider';
-
-// const images = [
-//   '/images/banner.png',
-//   '/images/bannertwo.png',
-//   '/images/bannerthree.png',
-// ];
-
-// interface UnifiedPageProps {
-//   children: React.ReactNode;
-// }
-
-// const UnifiedPage: React.FC<UnifiedPageProps> = ({ children }) => {
-//   return (
-//     <main>
-//       <div className="at-maincontentwrapper">
-//         <div className="at-homebanner">
-//           <figure className="at-bannerimg">
-//             <HomeSlider images={images} />
-//           </figure>
-//         </div>
-//         {children}
-//       </div>
-//     </main>
-//   );
-// };
-
-// export default UnifiedPage;
-
-
 // src/components/UnifiedPage.tsx
 'use client';
 
