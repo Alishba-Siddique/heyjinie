@@ -19,19 +19,39 @@ const PRODUCT_PLACEHOLDER = '/images/logoicons.png';
 const BASE_URL = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || ''; // This might not be needed if paths are absolute/full
 
 // Define type-based background settings (copied from pricefilter)
-const getCategoryBackground = (type?: number) => {
-  switch (type) {
+// --- Helper Function for Default Background Image (Modal Background) ---
+const getDefaultBgImageForType = (type?: number): string => {
+  const valid_type =
+    typeof type === 'number' && type >= 1 && type <= 4 ? type : null;
+  switch (valid_type) {
     case 1:
-      return { image: 'pd_bg_1.jpg', color: '#FFD05E' }; // Yellow
+      return `${BASE_URL}/pd_bg_1.jpg`;
     case 2:
-      return { image: 'pd_bg_2.jpg', color: '#FF834B' }; // Orange
+      return `${BASE_URL}/pd_bg_2.jpg`;
     case 3:
-      return { image: 'pd_bg_3.jpg', color: '#88C1FD' }; // Blue
+      return `${BASE_URL}/pd_bg_3.jpg`;
     case 4:
-      return { image: 'pd_bg_4.jpg', color: '#40A574' }; // Green
+      return `${BASE_URL}/pd_bg_4.jpg`;
     default:
-      // Fallback to type 1 style if type is undefined or not matched
-      return { image: 'pd_bg_1.jpg', color: '#D6D6DA' }; // Default fallback (Yellow in pricefilter, grey here)
+      return `${BASE_URL}/pd_bg_1.jpg`; // Default to type 1 image if invalid
+  }
+};
+// --- End Helper Function ---
+
+const getCategoryBackground = (type?: number): string => {
+  const valid_type =
+    typeof type === 'number' && type >= 1 && type <= 4 ? type : null;
+  switch (valid_type) {
+    case 1:
+      return '#FFD05E';
+    case 2:
+      return '#FF834B';
+    case 3:
+      return '#88C1FD';
+    case 4:
+      return '#40A574';
+    default:
+      return '#D6DADA';
   }
 };
 
@@ -115,6 +135,7 @@ interface Product {
   image_path: string; // relative path (or absolute/full if used directly)
   sticker_path: string; // relative path (or absolute/full if used directly)
   description: string;
+  category_id: string;
   company_id: string; // ID of company
   subcategory_id: string;
   background_image: string; // relative path (or absolute/full if used directly)
@@ -145,6 +166,7 @@ const SubCategoryPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [subCategoryId, setSubCategoryId] = useState<string | null>(null);
+   const [allCategories, setAllCategories] = useState<CategoryInfoForModal[]>([]);
   const [brandsLoading, setBrandsLoading] = useState<boolean>(true);
   const [pageCategoryInfo, setPageCategoryInfo] =
     useState<PageCategoryInfo | null>(null);
@@ -253,7 +275,7 @@ const SubCategoryPage = () => {
     // Ensure unique images and provide placeholder if none found
     PFGalleryImages = [...new Set(PFGalleryImages)];
     if (PFGalleryImages.length === 0) {
-      PFGalleryImages.push(PRODUCT_PLACEHOLDER);
+      // PFGalleryImages.push(PRODUCT_PLACEHOLDER);
     }
 
     const productForModal: ProductForModal = {
@@ -266,7 +288,8 @@ const SubCategoryPage = () => {
         name: companyData?.name || 'Brand Unavailable',
         company_logo: companyData?.company_logo // Assumed to be full/absolute path
           ? `${companyData.company_logo}`
-          : PRODUCT_PLACEHOLDER,
+          // : PRODUCT_PLACEHOLDER,
+          : '',
       },
       category_id: {
         _id: pageCategoryInfo?._id || 'cat-default-id',
@@ -313,8 +336,8 @@ const SubCategoryPage = () => {
         _id: selectedProduct._id,
         price: selectedProduct.price + selectedSpecPrice, // Combined price
         quantity,
-        image_path:
-          selectedProduct.background_images?.[0] || PRODUCT_PLACEHOLDER, // Use first background image
+        // image_path:
+        //   selectedProduct.background_images?.[0] || PRODUCT_PLACEHOLDER, // Use first background image
         sticker_path: selectedProduct.sticker_path,
         name: selectedProduct.name,
         description: selectedProduct.description,
@@ -480,16 +503,24 @@ const SubCategoryPage = () => {
     setProcessing(false);
   };
 
-  const getModalLeftPanelStyle = () => {
-    const type = selectedProduct?.category_id?.type ?? 1;
-    const { image: imageName } = getCategoryBackground(type);
-    const imageUrl = `/images/model-bg/${imageName}`;
-    return {
-      backgroundImage: `url('${imageUrl}')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    };
-  };
+  // --- Background Logic (Category Type Image for Modals) ---
+  const getModalLeftPanelStyle = useCallback(
+    (productForModal?: ProductForModal | null): React.CSSProperties => {
+      let categoryType: number | undefined = undefined;
+      if (productForModal?.category_id) {
+        categoryType = productForModal.category_id.type;
+      }
+      const finalBgImage = getDefaultBgImageForType(categoryType);
+      return {
+        backgroundImage: `url('${finalBgImage}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      };
+    },
+    [] // Dependency on allCategories removed as type is directly on productForModal.category_id
+  );
+  // --- End Background Logic ---
+
 
   const fetchPageSubCategoryInfo = async () => {
     try {
@@ -577,6 +608,11 @@ const SubCategoryPage = () => {
     }
   };
 
+  const handleSelectSize = (sizeValue: string, specPrice: number) => {
+    setSelectedSize(sizeValue);
+    setSelectedSpecPrice(isNaN(specPrice) ? 0 : specPrice);
+  };
+
   const handleBrandClick = (
     brandname: string,
     brandLogo: string,
@@ -597,8 +633,7 @@ const SubCategoryPage = () => {
 
   const getCardBackgroundStyle = () => {
     const type = pageCategoryInfo?.type ?? 1;
-    const { color } = getCategoryBackground(type);
-    return { backgroundColor: color };
+    return { backgroundColor: getCategoryBackground(type) };
   };
 
   const decodedSubcategoryName =
@@ -701,12 +736,13 @@ const SubCategoryPage = () => {
                       style={getCardBackgroundStyle()}
                     >
                       <img
-                        src={displayImage || PRODUCT_PLACEHOLDER} // Use directly
+                        // src={displayImage || PRODUCT_PLACEHOLDER} // Use directly
+                        src={displayImage} // Use directly
                         alt={product.name || 'Product Image'}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            PRODUCT_PLACEHOLDER;
-                        }}
+                        // onError={(e) => {
+                        //   (e.target as HTMLImageElement).src =
+                        //     PRODUCT_PLACEHOLDER;
+                        // }}
                         className="w-full h-full object-contain p-2"
                       />
                     </figure>
@@ -737,354 +773,487 @@ const SubCategoryPage = () => {
 
         {/* --- Modals (copied and adapted from pricefilter/page.tsx) --- */}
         {/* First Modal (Product Details) */}
-        {isFirstModalOpen && selectedProduct && (
-          <div
-            className="fixed inset-0 z-[99] p-5 flex items-center justify-center bg-black bg-opacity-50"
-            onClick={closeModals}
-          >
-            <div
-              className="bg-white rounded-lg shadow-lg at-modaldailouge"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex flex-col md:flex-row">
-                <div
-                  className="at-modalleftside w-full md:w-[40%] flex-shrink-0 p-6 flex items-center justify-center relative"
-                  style={getModalLeftPanelStyle()}
-                >
-                  <button
-                    onClick={closeModals}
-                    className="at-btnpopupclose at-btnpopupclosetwo"
-                  >
-                    {/* SVG close icon */}
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g clipPath="url(#clip0_252_1556)"><path d="M16 32C7.17725 32 0 24.8228 0 16C0 7.17725 7.17725 0 16 0C24.8228 0 32 7.17725 32 16C32 24.8228 24.8228 32 16 32ZM16 2C8.28003 2 2 8.28003 2 16C2 23.72 8.28003 30 16 30C23.72 30 30 23.72 30 16C30 8.28003 23.72 2 16 2Z" fill="#434343"/><path d="M11.0508 21.9492C10.7947 21.9492 10.5386 21.8521 10.344 21.656C9.95337 21.2654 9.95337 20.6321  10.344 20.2415L20.2439 10.3413C20.6348 9.95068 21.2681 9.95068 21.6587 10.3413C22.0493 10.7319 22.0493 11.3652 21.6587 11.7561L11.7585 21.656C11.5613 21.8521 11.3054 21.9492 11.0508 21.9492Z" fill="#434343"/><path d="M20.9492 21.9492C20.6933 21.9492 20.4372 21.8521 20.2426 21.656L10.3427 11.7573C9.95184 11.3667 9.95184 10.7334 10.3427 10.3428C10.7333 9.9519 11.3666 9.9519 11.7573 10.3428L21.6572 20.2427C22.048 20.6333 22.048 21.2666 21.6572 21.6572C21.4614 21.8521 21.2053 21.9492 20.9492 21.9492Z" fill="#434343"/></g><defs><clipPath id="clip0_252_1556"><rect width="32" height="32" fill="white"/></clipPath></defs></svg>
-                  </button>
-                  <figure className="at-productimg relative w-full h-full max-w-full flex items-center justify-center">
-                    {selectedProduct.background_images &&
-                    selectedProduct.background_images.length > 0 ? (
-                      <>
-                        <img
-                          src={ // MODIFIED HERE
-                            // selectedProduct.background_images[currentImageIndex]
-                            selectedProduct.background_images[currentImageIndex] || PRODUCT_PLACEHOLDER
-                          }
-                          alt={`${selectedProduct.name} - image ${
-                            currentImageIndex + 1
-                          }`}
-                          className="object-contain w-full h-full "
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              PRODUCT_PLACEHOLDER;
-                          }}
-                        />
-                        {selectedProduct.background_images.length > 1 && (
-                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2 p-1 bg-black bg-opacity-25 rounded-full">
-                            {selectedProduct.background_images.map(
-                              (_, index) => (
-                                <button
-                                  key={index}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setCurrentImageIndex(index);
-                                  }}
-                                  className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                                    currentImageIndex === index
-                                      ? 'bg-white'
-                                      : 'bg-gray-300 hover:bg-gray-100'
-                                  }`}
-                                  aria-label={`View image ${index + 1}`}
-                                />
-                              )
-                            )}
-                          </div>
-                        )}
-                      </>
-                     ) : (
-                      <img
-                        src={PRODUCT_PLACEHOLDER}
-                        alt={selectedProduct.name}
-                        className="object-contain w-full h-full"
-                      />
-                    )}
-                  </figure>
-                </div>
-                <div className="at-popupcontentside w-full md:w-[60%] p-6 flex flex-col justify-between">
-                  <div>
-                    <div className="at-popuptitlebrandimg flex items-start mb-3">
-                      <span className="w-12 h-12 mr-3 overflow-hidden flex-shrink-0">
-                        <img
-                          src={
-                            selectedProduct.company_id?.company_logo ||
-                            PRODUCT_PLACEHOLDER
-                          }
-                          alt={`${
-                            selectedProduct.company_id?.name || 'Brand'
-                          } logo`}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              PRODUCT_PLACEHOLDER;
-                          }}
-                        />
-                      </span>
-                      <div
-                        className="at-popupproduct titlerating flex-grow cursor-pointer"
-                        onClick={() => handleReviewsClick(selectedProduct._id)}
-                        title="View Reviews"
-                      >
-                        <h4 className="font-semibold text-lg text-gray-800">
-                          {selectedProduct.company_id?.name || 'Brand Name'}
-                        </h4>
-                        <div className="flex justify-start items-center">
-                          <RatingStars
-                            rating={Math.round(selectedProduct.total_rating)}
-                          />
-                          <p className="ml-1 text-sm text-gray-600">
-                            ({Math.round(selectedProduct.total_rating)})
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="at-popupcolorprice flex justify-between items-start my-3">
-                      <div className="at-popupcolor flex-grow mr-4">
-                        <h3 className="font-bold text-xl text-gray-900">
-                          {selectedProduct.name}
-                        </h3>
-                      </div>
-                      <div className="at-popupprice flex-shrink-0">
-                        <h3 className="font-bold text-xl text-[#40A574]">
-                          Rs. {selectedProduct.price + selectedSpecPrice}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <div className="at-popupdescription mb-4">
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        {selectedProduct.description}
-                      </p>
-                    </div>
-
-                    {selectedProduct.specification &&
-                      selectedProduct.specification.length > 0 &&
-                      selectedProduct.specification[0].values.length > 0 && (
-                        <div className="at-productsize mb-4">
-                          <label className="block text-base font-medium text-gray-700 mb-1">
-                            {selectedProduct.specification[0].name || 'Options'}
-                          </label>
-                          <div className="overflow-x-auto horizontal-scroll snap-x snap-mandatory flex gap-2">
-                            {selectedProduct.specification[0].values.map(
-                              (specValue) => {
-                                const specPriceNum = Number(specValue.price);
-                                const displaySpecPrice =
-                                  isNaN(specPriceNum) || specPriceNum === 0
-                                    ? ''
-                                    : ` (+${specPriceNum})`;
-                                return (
-                                  <button
-                                    key={specValue._id || specValue.value}
-                                    onClick={() => {
-                                      setSelectedSize(specValue.value);
-                                      setSelectedSpecPrice(
-                                        isNaN(specPriceNum) ? 0 : specPriceNum
-                                      );
-                                    }}
-                                    className={`px-5 py-3 border rounded-full text-base transition-colors duration-150 ${
-                                      selectedSize === specValue.value
-                                        ? 'bg-[#40A574] text-white border-[#40A574]'
-                                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-                                    }`}
-                                  >
-                                    {specValue.value}
-                                    {displaySpecPrice}
-                                  </button>
-                                );
-                              }
-                            )}
-                          </div>
-                        </div>
-                      )}
-                  </div>
-
-                  <div className="at-btnaddtocart">
-                    {isInCart(selectedProduct._id) ? (
-                      <button onClick={handleGoToCart} className="at-btn">
-                        Go to Cart
-                        {/* SVG icon */}
-                        <svg className="mt-3" width="24" height="24" viewBox="0 0 32 32" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="white" /><path d="M24 16C24 16.3537 23.8644 16.6957 23.6108 16.9433C23.3631 17.1968 23.021 17.3382 22.6672 17.3382H17.3358V22.6677C17.3358 23.0214 17.1943 23.3633 16.9407 23.6109C16.693 23.8585 16.3568 24 16.0029 24C15.6491 24 15.307 23.8585 15.0593 23.6109C14.8058 23.3633 14.6642 23.0214 14.6642 22.6677V17.3382H9.33284C8.97899 17.3382 8.63693 17.1968 8.38924 16.9433C8.14154 16.6957 8 16.3537 8 16C8 15.6463 8.14154 15.3102 8.38924 15.0567C8.63693 14.8091 8.97899 14.6676 9.33284 14.6676H14.6642V9.33825C14.6642 8.98452 14.8058 8.64259 15.0593 8.39499C15.307 8.14149 15.6491 8 16.0029 8C16.3568 8 16.693 8.14149 16.9407 8.39499C17.1943 8.64259 17.3358 8.98452 17.3358 9.33825V14.6676H22.6672C23.021 14.6676 23.3631 14.8091 23.6108 15.0567C23.8644 15.3102 24 15.6463 24 16Z" fill="#40A574" /></svg>
-                      </button>
-                    ) : (
-                      <button onClick={handleAddToCart} className="at-btn">
-                        Add to Cart
-                        {/* SVG icon */}
-                        <svg className="mt-3" width="24" height="24" viewBox="0 0 32 32" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="white" /><path d="M24 16C24 16.3537 23.8644 16.6957 23.6108 16.9433C23.3631 17.1968 23.021 17.3382 22.6672 17.3382H17.3358V22.6677C17.3358 23.0214 17.1943 23.3633 16.9407 23.6109C16.693 23.8585 16.3568 24 16.0029 24C15.6491 24 15.307 23.8585 15.0593 23.6109C14.8058 23.3633 14.6642 23.0214 14.6642 22.6677V17.3382H9.33284C8.97899 17.3382 8.63693 17.1968 8.38924 16.9433C8.14154 16.6957 8 16.3537 8 16C8 15.6463 8.14154 15.3102 8.38924 15.0567C8.63693 14.8091 8.97899 14.6676 9.33284 14.6676H14.6642V9.33825C14.6642 8.98452 14.8058 8.64259 15.0593 8.39499C15.307 8.14149 15.6491 8 16.0029 8C16.3568 8 16.693 8.14149 16.9407 8.39499C17.1943 8.64259 17.3358 8.98452 17.3358 9.33825V14.6676H22.6672C23.021 14.6676 23.3631 14.8091 23.6108 15.0567C23.8644 15.3102 24 15.6463 24 16Z" fill="#40A574" /></svg>
-                      </button>
-                    )}
-                    <button
-                      className="at-btn at-btnpersonal"
-                      onClick={() => handlePersonalize(selectedProduct._id)}
-                    >
-                      Personalize
-                      <label className="custom-checkbox top-2">
-                        <input
-                          className="align-middle"
-                          type="checkbox"
-                          checked={hasPersonalization(selectedProduct._id)}
-                          readOnly
-                        />
-                        <span className="checkmark"></span>
-                      </label>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Second Modal (Order Summary) */}
-        {isSecondModalOpen && selectedProduct && (
-          <div
-            className="fixed inset-0 z-[99] p-5 flex items-center justify-center bg-black bg-opacity-50"
-            onClick={closeModals}
-          >
-            <div
-              className="bg-white rounded-lg shadow-lg at-modaldailouge"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex flex-col md:flex-row">
-                <div
-                  className="at-modalleftside w-full md:w-[40%] flex-shrink-0 p-6 flex items-center justify-center relative"
-                  style={getModalLeftPanelStyle()}
-                >
-                  <button
-                    onClick={closeModals}
-                    className="at-btnpopupclose at-btnpopupclosetwo"
-                  >
-                    {/* SVG close icon */}
-                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g clipPath="url(#clip0_252_1556)"><path d="M16 32C7.17725 32 0 24.8228 0 16C0 7.17725 7.17725 0 16 0C24.8228 0 32 7.17725 32 16C32 24.8228 24.8228 32 16 32ZM16 2C8.28003 2 2 8.28003 2 16C2 23.72 8.28003 30 16 30C23.72 30 30 23.72 30 16C30 8.28003 23.72 2 16 2Z" fill="#434343"/><path d="M11.0508 21.9492C10.7947 21.9492 10.5386 21.8521 10.344 21.656C9.95337 21.2654 9.95337 20.6321  10.344 20.2415L20.2439 10.3413C20.6348 9.95068 21.2681 9.95068 21.6587 10.3413C22.0493 10.7319 22.0493 11.3652 21.6587 11.7561L11.7585 21.656C11.5613 21.8521 11.3054 21.9492 11.0508 21.9492Z" fill="#434343"/><path d="M20.9492 21.9492C20.6933 21.9492 20.4372 21.8521 20.2426 21.656L10.3427 11.7573C9.95184 11.3667 9.95184 10.7334 10.3427 10.3428C10.7333 9.9519 11.3666 9.9519 11.7573 10.3428L21.6572 20.2427C22.048 20.6333 22.048 21.2666 21.6572 21.6572C21.4614 21.8521 21.2053 21.9492 20.9492 21.9492Z" fill="#434343"/></g><defs><clipPath id="clip0_252_1556"><rect width="32" height="32" fill="white"/></clipPath></defs></svg>
-                  </button>
-                  <figure className="at-productimg relative w-full h-full max-w-full flex items-center justify-center">
-                    <img
-                      src={ // MODIFIED HERE
-                        (selectedProduct.background_images && selectedProduct.background_images.length > currentImageIndex
-                          ? selectedProduct.background_images[currentImageIndex]
-                          : selectedProduct.background_images?.[0]) || PRODUCT_PLACEHOLDER
-                      }
-                      alt={selectedProduct.name}
-                      className="object-contain w-full h-full"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          PRODUCT_PLACEHOLDER;
-                      }}
-                    />
-                  </figure>
-                </div>
-                <div className="at-popupcontentside w-full md:w-[60%] p-6 flex flex-col justify-between">
-                  <div>
-                    <div className="at-popuptitlebrandimg at-modaltitleqnty mb-4">
-                      <div className="at-popupproducttitlerating at-ordersummerytitlearea flex-grow">
-                        <h4 className="font-bold text-lg text-gray-800">
-                          {selectedProduct.name}
-                        </h4>
-                        <p className="text-sm text-gray-600 truncate">
-                          {selectedProduct.description}
-                        </p>
-                      </div>
-                      <div className="at-orderquntatiy flex-shrink-0 ml-4">
-                        <div className="at-btnquntatiyholder flex items-center border rounded-md">
-                          <button
-                            onClick={decreaseQuantity}
-                            disabled={quantity <= 1}
-                            className="px-3 py-1 text-lg font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-                          >
-                            -
-                          </button>
-                          <span className="px-4 py-1 text-base text-gray-800">
-                            {quantity}
-                          </span>
-                          <button
-                            onClick={increaseQuantity}
-                            className="px-3 py-1 text-lg font-medium text-gray-700 hover:bg-gray-100"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="at-ordersummery border-t pt-4">
-                      <h3 className="font-semibold text-md text-gray-800 mb-2">
-                        Order Summary
-                      </h3>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex justify-between">
-                          <span>Item Price:</span>{' '}
-                          <span>
-                            Rs.{' '}
-                            {(
-                              selectedProduct.price + selectedSpecPrice
-                            ).toFixed(2)}
-                          </span>
-                        </li>
-                        <li className="flex justify-between">
-                          <span>Quantity:</span> <span>{quantity}</span>
-                        </li>
-                        <li className="flex justify-between">
-                          <span>Subtotal:</span>{' '}
-                          <span>
-                            Rs.{' '}
-                            {(
-                              (selectedProduct.price + selectedSpecPrice) *
-                              quantity
-                            ).toFixed(2)}
-                          </span>
-                        </li>
-                        <li className="flex justify-between">
-                          <span>Sales Tax (17%):</span>{' '}
-                          <span>
-                            Rs.{' '}
-                            {(
-                              (selectedProduct.price + selectedSpecPrice) *
-                              quantity *
-                              0.17
-                            ).toFixed(2)}
-                          </span>
-                        </li>
-                        <li className="flex justify-between font-bold text-md mt-2 border-t pt-2">
-                          <span>Grand Total:</span>{' '}
-                          <span>
-                            Rs.{' '}
-                            {(
-                              (selectedProduct.price + selectedSpecPrice) *
-                              quantity *
-                              1.17
-                            ).toFixed(2)}
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="at-btnsubmitcontact at-btnprofile at-btnplaceorder pt-5 mt-auto">
-                    <button
-                      type="button"
-                      className="at-btn w-full mb-2"
-                      onClick={handlePlaceOrder}
-                      disabled={processing}
-                    >
-                      {processing ? 'Processing...' : 'Place Order'}
-                    </button>
-                    <button
-                      type="button"
-                      className="at-btn at-btncancel w-full"
-                      onClick={() => router.push('/home')}
-                    >
-                      Continue Shopping
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* --- Modals --- */}
+             {/* First Modal: Product Details (Styled like PriceFilterResult) */}
+             {isFirstModalOpen &&
+               selectedProduct &&
+               (() => {
+                 const modalBackgroundStyle = getModalLeftPanelStyle(selectedProduct);
+                 const contentFirstImages = selectedProduct.background_images ?? [];
+                 const hasContentSlider = contentFirstImages.length > 1;
+                //  let currentContentImageSrc = PRODUCT_PLACEHOLDER;
+                let currentContentImageSrc;
+                 if (
+                   contentFirstImages.length > 0 &&
+                   currentImageIndex < contentFirstImages.length
+                 ) {
+                   currentContentImageSrc = `${BASE_URL}/${contentFirstImages[currentImageIndex]}`;
+                //  } else if (selectedProduct.sticker_path) {
+                //    currentContentImageSrc = `${selectedProduct.sticker_path}`;
+                //  } else if (selectedProduct.image_path) {
+                //    currentContentImageSrc = `${selectedProduct.image_path}`;
+                 }
+       
+                 const currentProductBrand = brands.find(
+                   (b) => b._id === selectedProduct.company_id._id
+                 );
+       
+                 return (
+                   <div
+                     className="fixed inset-0 z-[99] p-5 flex items-center justify-center bg-black bg-opacity-50"
+                     onClick={closeModals}
+                   >
+                     <div
+                       className="bg-white rounded-lg shadow-lg at-modaldailouge w-full max-w-3xl"
+                       onClick={(e) => e.stopPropagation()}
+                     >
+                       <div className="flex flex-col md:flex-row">
+                         {/* Left Side: Image Panel */}
+                         <div
+                           className="at-modalleftside w-full md:w-[40%] flex-shrink-0 p-6 flex items-center justify-center relative"
+                           style={modalBackgroundStyle}
+                         >
+                           <button
+                             onClick={closeModals}
+                             className="at-btnpopupclose at-btnpopupclosetwo"
+                           >
+                             <svg
+                               width="32"
+                               height="32"
+                               viewBox="0 0 32 32"
+                               fill="none"
+                               xmlns="http://www.w3.org/2000/svg"
+                             >
+                               <g clipPath="url(#clip0_252_1556)">
+                                 <path
+                                   d="M16 32C7.17725 32 0 24.8228 0 16C0 7.17725 7.17725 0 16 0C24.8228 0 32 7.17725 32 16C32 24.8228 24.8228 32 16 32ZM16 2C8.28003 2 2 8.28003 2 16C2 23.72 8.28003 30 16 30C23.72 30 30 23.72 30 16C30 8.28003 23.72 2 16 2Z"
+                                   fill="#434343"
+                                 />
+                                 <path
+                                   d="M11.0508 21.9492C10.7947 21.9492 10.5386 21.8521 10.344 21.656C9.95337 21.2654 9.95337 20.6321  10.344 20.2415L20.2439 10.3413C20.6348 9.95068 21.2681 9.95068 21.6587 10.3413C22.0493 10.7319 22.0493 11.3652 21.6587 11.7561L11.7585 21.656C11.5613 21.8521 11.3054 21.9492 11.0508 21.9492Z"
+                                   fill="#434343"
+                                 />
+                                 <path
+                                   d="M20.9492 21.9492C20.6933 21.9492 20.4372 21.8521 20.2426 21.656L10.3427 11.7573C9.95184 11.3667 9.95184 10.7334 10.3427 10.3428C10.7333 9.9519 11.3666 9.9519 11.7573 10.3428L21.6572 20.2427C22.048 20.6333 22.048 21.2666 21.6572 21.6572C21.4614 21.8521 21.2053 21.9492 20.9492 21.9492Z"
+                                   fill="#434343"
+                                 />
+                               </g>
+                               <defs>
+                                 <clipPath id="clip0_252_1556">
+                                   <rect width="32" height="32" fill="white" />
+                                 </clipPath>
+                               </defs>
+                             </svg>
+                           </button>
+                           <figure className="at-productimg relative w-full h-full max-w-full flex items-center justify-center">
+                             <img
+                               src={currentContentImageSrc}
+                               alt={`${selectedProduct.name} - Image ${
+                                 currentImageIndex + 1
+                               }`}
+                               className="object-contain w-full h-full"
+                               onError={(e) => {
+                                 e.currentTarget.onerror = null;
+                                //  e.currentTarget.src = PRODUCT_PLACEHOLDER;
+                               }}
+                             />
+                             {hasContentSlider && (
+                               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2 p-1 bg-black bg-opacity-25 rounded-full">
+                                 {contentFirstImages.map((_, index) => (
+                                   <button
+                                     key={`dot-${index}`}
+                                     onClick={(e) => {
+                                       e.stopPropagation();
+                                       setCurrentImageIndex(index);
+                                     }}
+                                     className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                                       currentImageIndex === index
+                                         ? 'bg-white'
+                                         : 'bg-gray-300 hover:bg-gray-100'
+                                     }`}
+                                     aria-label={`View image ${index + 1}`}
+                                   />
+                                 ))}
+                               </div>
+                             )}
+                           </figure>
+                          
+                         </div>
+       
+                         {/* Right Side: Product Details */}
+                         <div className="at-popupcontentside w-full md:w-[60%] p-6 flex flex-col justify-between">
+                           <div>
+                             {' '}
+                             {/* Content wrapper */}
+                             <div className="at-popuptitlebrandimg flex items-start mb-3">
+                               {currentProductBrand?.company_logo && (
+                                 <span className="w-12 h-12 mr-3 overflow-hidden flex-shrink-0 border rounded-md flex items-center justify-center bg-white">
+                                   <img
+                                     src={currentProductBrand.company_logo}
+                                     alt={`${currentProductBrand.name} logo`}
+                                     className="w-full h-full object-contain"
+                                    //  onError={(e) => {
+                                    //    (e.target as HTMLImageElement).src =
+                                    //      PRODUCT_PLACEHOLDER;
+                                    //  }}
+                                   />
+                                 </span>
+                               )}
+                               <div
+                                 className="at-popupproducttitlerating flex-grow cursor-pointer"
+                                 onClick={() =>
+                                   handleReviewsClick(selectedProduct._id)
+                                 }
+                                 title="View Reviews"
+                               >
+                                 <h4 className="font-semibold text-lg text-gray-800">
+                                   {currentProductBrand?.name || 'Brand Name'}
+                                 </h4>
+                                 <RatingStars
+                                   rating={Math.round(selectedProduct.total_rating)}
+                                 />
+                               </div>
+                             </div>
+                             <div className="at-popupcolorprice flex justify-between items-start my-3">
+                               <div className="at-popupcolor flex-grow mr-4">
+                                 <h3 className="font-bold text-xl text-gray-900">
+                                   {selectedProduct.name}
+                                 </h3>
+                               </div>
+                               <div className="at-popupprice flex-shrink-0">
+                                 <h3 className="font-bold text-xl text-[#40A574]">
+                                   Rs. {selectedProduct.price + selectedSpecPrice}
+                                 </h3>
+                               </div>
+                             </div>
+                             <div className="at-popupdescription mb-4">
+                               <p className="text-sm text-gray-600 leading-relaxed">
+                                 {selectedProduct.description ||
+                                   'No description available.'}
+                               </p>
+                             </div>
+                             {selectedProduct.specification &&
+                               selectedProduct.specification.length > 0 &&
+                               selectedProduct.specification[0].values?.length > 0 && (
+                                 <div className="at-productsize mb-4">
+                                   <label className="block text-base font-medium text-gray-700 mb-1">
+                                     {selectedProduct.specification[0].name ||
+                                       'Options'}
+                                   </label>
+                                   <div className="overflow-x-auto horizontal-scroll snap-x snap-mandatory flex gap-2 pb-1">
+                                     {selectedProduct.specification[0].values.map(
+                                       (specValue) => {
+                                         const specPriceNum = Number(specValue.price);
+                                         const displaySpecPrice =
+                                           isNaN(specPriceNum) || specPriceNum === 0
+                                             ? ''
+                                             : ` (+${specPriceNum})`;
+                                         return (
+                                           <button
+                                             key={specValue._id || specValue.value}
+                                             onClick={() =>
+                                               handleSelectSize(
+                                                 specValue.value,
+                                                 specPriceNum
+                                               )
+                                             }
+                                             className={`px-5 py-3 border rounded-full text-base transition-colors duration-150 whitespace-nowrap snap-start ${
+                                               selectedSize === specValue.value
+                                                 ? 'bg-[#40A574] text-white border-[#40A574]'
+                                                 : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                                             }`}
+                                           >
+                                             {specValue.value}
+                                             {displaySpecPrice}
+                                           </button>
+                                         );
+                                       }
+                                     )}
+                                   </div>
+                                 </div>
+                               )}
+                           </div>
+       
+                           
+                           <div className="at-btnaddtocart">
+                             {isInCart(selectedProduct._id) ? (
+                               <button onClick={handleGoToCart} className="at-btn">
+                                 Go to Cart
+                                 {/* SVG */}
+                                 <svg
+                                   className="mt-3"
+                                   width="24"
+                                   height="24"
+                                   viewBox="0 0 32 32"
+                                   fill="#ffffff"
+                                   xmlns="http://www.w3.org/2000/svg"
+                                 >
+                                   <circle cx="16" cy="16" r="16" fill="white" />
+                                   <path
+                                     d="M24 16C24 16.3537 23.8644 16.6957 23.6108 16.9433C23.3631 17.1968 23.021 17.3382 22.6672 17.3382H17.3358V22.6677C17.3358 23.0214 17.1943 23.3633 16.9407 23.6109C16.693 23.8585 16.3568 24 16.0029 24C15.6491 24 15.307 23.8585 15.0593 23.6109C14.8058 23.3633 14.6642 23.0214 14.6642 22.6677V17.3382H9.33284C8.97899 17.3382 8.63693 17.1968 8.38924 16.9433C8.14154 16.6957 8 16.3537 8 16C8 15.6463 8.14154 15.3102 8.38924 15.0567C8.63693 14.8091 8.97899 14.6676 9.33284 14.6676H14.6642V9.33825C14.6642 8.98452 14.8058 8.64259 15.0593 8.39499C15.307 8.14149 15.6491 8 16.0029 8C16.3568 8 16.693 8.14149 16.9407 8.39499C17.1943 8.64259 17.3358 8.98452 17.3358 9.33825V14.6676H22.6672C23.021 14.6676 23.3631 14.8091 23.6108 15.0567C23.8644 15.3102 24 15.6463 24 16Z"
+                                     fill="#40A574"
+                                   />
+                                 </svg>
+                               </button>
+                             ) : (
+                               <button onClick={handleAddToCart} className="at-btn">
+                                 Add to Cart
+                                 {/* SVG */}
+                                 <svg
+                                   className="mt-3"
+                                   width="24"
+                                   height="24"
+                                   viewBox="0 0 32 32"
+                                   fill="#ffffff"
+                                   xmlns="http://www.w3.org/2000/svg"
+                                 >
+                                   <circle cx="16" cy="16" r="16" fill="white" />
+                                   <path
+                                     d="M24 16C24 16.3537 23.8644 16.6957 23.6108 16.9433C23.3631 17.1968 23.021 17.3382 22.6672 17.3382H17.3358V22.6677C17.3358 23.0214 17.1943 23.3633 16.9407 23.6109C16.693 23.8585 16.3568 24 16.0029 24C15.6491 24 15.307 23.8585 15.0593 23.6109C14.8058 23.3633 14.6642 23.0214 14.6642 22.6677V17.3382H9.33284C8.97899 17.3382 8.63693 17.1968 8.38924 16.9433C8.14154 16.6957 8 16.3537 8 16C8 15.6463 8.14154 15.3102 8.38924 15.0567C8.63693 14.8091 8.97899 14.6676 9.33284 14.6676H14.6642V9.33825C14.6642 8.98452 14.8058 8.64259 15.0593 8.39499C15.307 8.14149 15.6491 8 16.0029 8C16.3568 8 16.693 8.14149 16.9407 8.39499C17.1943 8.64259 17.3358 8.98452 17.3358 9.33825V14.6676H22.6672C23.021 14.6676 23.3631 14.8091 23.6108 15.0567C23.8644 15.3102 24 15.6463 24 16Z"
+                                     fill="#40A574"
+                                   />
+                                 </svg>
+                               </button>
+                             )}
+                             <button
+                               className="at-btn at-btnpersonal"
+                               onClick={() => handlePersonalize(selectedProduct._id)}
+                             >
+                               Personalize
+                               <label className="custom-checkbox top-2">
+                                 <input
+                                   className="align-middle"
+                                   type="checkbox"
+                                   checked={hasPersonalization(selectedProduct._id)}
+                                   readOnly
+                                 />
+                                 <span className="checkmark"></span>
+                               </label>
+                             </button>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 );
+               })()}
+       
+             {/* Second Modal: Order Summary (Styled like PriceFilterResult) */}
+             {isSecondModalOpen &&
+               selectedProduct &&
+               (() => {
+               
+                 const modalBackgroundStyle = getModalLeftPanelStyle(selectedProduct);
+                 const contentSecondImages = selectedProduct.background_images ?? [];
+                 const hasContentSlider = contentSecondImages.length > 1;
+                 let currentContentImageSrc;
+                //  let currentContentImageSrc = PRODUCT_PLACEHOLDER;
+                 if (
+                   contentSecondImages.length > 0 &&
+                   currentImageIndex < contentSecondImages.length
+                 ) {
+                   currentContentImageSrc = `${BASE_URL}/${contentSecondImages[currentImageIndex]}`;
+                //  } else if (selectedProduct.sticker_path) {
+                //    currentContentImageSrc = `${selectedProduct.sticker_path}`;
+                //  } else if (selectedProduct.image_path) {
+                //    currentContentImageSrc = `${selectedProduct.image_path}`;
+                 }
+       
+               
+                 const finalProductPrice = selectedProduct.price + selectedSpecPrice;
+       
+                 return (
+                   <div
+                     className="fixed inset-0 z-[99] p-5 flex items-center justify-center bg-black bg-opacity-50"
+                     onClick={closeModals}
+                   >
+                     <div
+                       className="bg-white rounded-lg shadow-lg at-modaldailouge"
+                       onClick={(e) => e.stopPropagation()}
+                     >
+                       <div className="flex justify-between items-center flex-col">
+                         {' '}
+                         {/* Main container flex-col */}
+                         <div className="at-modalcontent w-full">
+                           {' '}
+                           {/* Added w-full for consistency */}
+                           <div
+                           className="at-modalleftside w-full md:w-[40%] flex-shrink-0 p-6 flex items-center justify-center relative"
+                           style={modalBackgroundStyle}
+                         >
+                           <button
+                             onClick={closeModals}
+                             className="at-btnpopupclose at-btnpopupclosetwo"
+                           >
+                             <svg
+                               width="32"
+                               height="32"
+                               viewBox="0 0 32 32"
+                               fill="none"
+                               xmlns="http://www.w3.org/2000/svg"
+                             >
+                               <g clipPath="url(#clip0_252_1556)">
+                                 <path
+                                   d="M16 32C7.17725 32 0 24.8228 0 16C0 7.17725 7.17725 0 16 0C24.8228 0 32 7.17725 32 16C32 24.8228 24.8228 32 16 32ZM16 2C8.28003 2 2 8.28003 2 16C2 23.72 8.28003 30 16 30C23.72 30 30 23.72 30 16C30 8.28003 23.72 2 16 2Z"
+                                   fill="#434343"
+                                 />
+                                 <path
+                                   d="M11.0508 21.9492C10.7947 21.9492 10.5386 21.8521 10.344 21.656C9.95337 21.2654 9.95337 20.6321  10.344 20.2415L20.2439 10.3413C20.6348 9.95068 21.2681 9.95068 21.6587 10.3413C22.0493 10.7319 22.0493 11.3652 21.6587 11.7561L11.7585 21.656C11.5613 21.8521 11.3054 21.9492 11.0508 21.9492Z"
+                                   fill="#434343"
+                                 />
+                                 <path
+                                   d="M20.9492 21.9492C20.6933 21.9492 20.4372 21.8521 20.2426 21.656L10.3427 11.7573C9.95184 11.3667 9.95184 10.7334 10.3427 10.3428C10.7333 9.9519 11.3666 9.9519 11.7573 10.3428L21.6572 20.2427C22.048 20.6333 22.048 21.2666 21.6572 21.6572C21.4614 21.8521 21.2053 21.9492 20.9492 21.9492Z"
+                                   fill="#434343"
+                                 />
+                               </g>
+                               <defs>
+                                 <clipPath id="clip0_252_1556">
+                                   <rect width="32" height="32" fill="white" />
+                                 </clipPath>
+                               </defs>
+                             </svg>
+                           </button>
+                           <figure className="at-productimg relative w-full h-full max-w-full flex items-center justify-center">
+                             <img
+                               src={currentContentImageSrc}
+                               alt={`${selectedProduct.name} - Image ${
+                                 currentImageIndex + 1
+                               }`}
+                               className="object-contain w-full h-full"
+                              //  onError={(e) => {
+                              //    e.currentTarget.onerror = null;
+                              //    e.currentTarget.src = PRODUCT_PLACEHOLDER;
+                              //  }}
+                             />
+                             {hasContentSlider && (
+                               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2 p-1 bg-black bg-opacity-25 rounded-full">
+                                 {contentSecondImages.map((_, index) => (
+                                   <button
+                                     key={`dot-${index}`}
+                                     onClick={(e) => {
+                                       e.stopPropagation();
+                                       setCurrentImageIndex(index);
+                                     }}
+                                     className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                                       currentImageIndex === index
+                                         ? 'bg-white'
+                                         : 'bg-gray-300 hover:bg-gray-100'
+                                     }`}
+                                     aria-label={`View image ${index + 1}`}
+                                   />
+                                 ))}
+                               </div>
+                             )}
+                           </figure>
+                           
+                         </div>
+                           <div className="at-popupcontentside p-6">
+                             {' '}
+                             {/* Added padding for consistency */}
+                             <div className="at-popuptitlebrandimg at-modaltitleqnty">
+                               <div className="at-popupproducttitlerating at-ordersummerytitlearea">
+                                 <h4>{selectedProduct.name}</h4>
+                                 <p>{selectedProduct.description}</p>
+                               </div>
+                               <div className="at-orderquntatiy">
+                                 <div className="at-btnquntatiyholder">
+                                   <button
+                                     onClick={decreaseQuantity}
+                                     disabled={quantity === 1}
+                                   >
+                                     -
+                                   </button>
+                                   <span>{quantity}</span>
+                                   <button onClick={increaseQuantity}>+</button>
+                                 </div>
+                               </div>
+                             </div>
+                             <div className="at-ordersummery">
+                               <h3>Order Summary</h3>
+                               <ul>
+                                 <li>
+                                   <span>Item Price</span>
+                                 </li>
+                                 <li>
+                                   <span>
+                                     Rs.
+                                     {(
+                                       selectedProduct.price + selectedSpecPrice
+                                     ).toFixed(2)}
+                                   </span>
+                                 </li>
+                                 <li>
+                                   <span>Quantity</span>
+                                 </li>
+                                 <li>
+                                   <span>{quantity}</span>
+                                 </li>
+                                 <li>
+                                   <span>Subtotal</span>
+                                 </li>
+                                 <li>
+                                   <span>
+                                     Rs.
+                                     {(
+                                       (selectedProduct.price + selectedSpecPrice) *
+                                       quantity
+                                     ).toFixed(2)}
+                                   </span>
+                                 </li>
+                                 <li>
+                                   <span>Sales Tax 17%</span>
+                                 </li>
+                                 <li>
+                                   <span>
+                                     Rs.
+                                     {(
+                                       (selectedProduct.price + selectedSpecPrice) *
+                                       quantity *
+                                       0.17
+                                     ).toFixed(2)}
+                                   </span>
+                                 </li>
+                                 <li>
+                                   <span>Grand Total</span>
+                                 </li>
+                                 <li>
+                                   <span>
+                                     Rs.
+                                     {(
+                                       (selectedProduct.price + selectedSpecPrice) *
+                                       quantity *
+                                       1.17
+                                     ).toFixed(2)}
+                                   </span>
+                                 </li>
+                               </ul>
+                             </div>
+                             <div className="at-btnsubmitcontact at-btnprofile at-btnplaceorder pt-5">
+                               {' '}
+                               {/* Adjusted margin/padding */}
+                               <button
+                                 type="button"
+                                 className="at-btn"
+                                 onClick={handlePlaceOrder}
+                                 disabled={processing}
+                               >
+                                 {processing ? 'Processing...' : 'Place Order'}
+                               </button>
+                               <a href="/home">
+                                 {' '}
+                                 {/* Consider using router.push('/home') for SPA navigation */}
+                                 <button type="button" className="at-btn at-btncancel">
+                                   Continue Shopping
+                                 </button>
+                               </a>
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 );
+               })()}
       </>
     </div>
   );

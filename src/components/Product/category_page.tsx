@@ -1,6 +1,6 @@
 // src/app/components/Product/category_page.tsx
 
-'use client'; // Ensure this is at the top
+'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';

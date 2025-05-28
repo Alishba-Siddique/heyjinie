@@ -1,4 +1,4 @@
-// src/components/UnifiedPage.tsx
+// src/components/Auth/UnifiedPage.tsx
 'use client';
 
 import { useAuth } from '@/context/AuthContext';

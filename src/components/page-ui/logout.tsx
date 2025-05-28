@@ -7,11 +7,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { clearSession } from '@/utils/sessionUtility';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import logo from '../../../public/images/logoicons.png'
 
 const LogoutButton = () => {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
@@ -94,7 +94,7 @@ const LogoutButton = () => {
           <DialogHeader>
             <DialogTitle className="shadow-lg">
               <Image
-                src="/images/logoIcons.png"
+                src={logo}
                 alt="logo"
                 width={70}
                 height={70}

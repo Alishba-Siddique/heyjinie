@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  productionBrowserSourceMaps: true,
   images: {
     remotePatterns: [
       {
@@ -16,7 +17,7 @@ const nextConfig: NextConfig = {
         hostname: "5.9.147.58",
         port: "3333",
         pathname: "/public/**",
-      },
+      }
     ],
   },
 

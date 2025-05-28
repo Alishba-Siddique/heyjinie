@@ -59,10 +59,8 @@ const UnifiedAuthComponent: React.FC = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
-  const googleButtonDiv = useRef<HTMLDivElement>(null);
-  const googleSignUpButtonDiv = useRef<HTMLDivElement>(null);
+  const googleButtonRef = useRef<HTMLDivElement>(null); // Consolidated ref
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -72,14 +70,18 @@ const UnifiedAuthComponent: React.FC = () => {
     setValue,
   } = useForm<AuthFormInputs>();
 
-  // Function to initialize Google Sign-In
-  const initializeGoogleSignIn = () => {
+  // Function to initialize Google Sign-In API
+  const initializeGoogleSignInAPI = () => {
     const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
-    if (!googleClientId || !window.google?.accounts?.id) {
+    if (!googleClientId) {
+      console.error('Google Client ID is missing.');
       return false;
     }
-
+    if (!window.google?.accounts?.id) {
+      console.warn('Google Accounts ID SDK not loaded yet during API init.');
+      return false;
+    }
     try {
       window.google.accounts.id.initialize({
         client_id: googleClientId,
@@ -88,39 +90,19 @@ const UnifiedAuthComponent: React.FC = () => {
         // Reducing CORS issues by limiting to necessary scopes
         // scope: 'email profile',
       });
-
-      // Render login button
-      if (googleButtonDiv.current) {
-        window.google.accounts.id.renderButton(googleButtonDiv.current, {
-          theme: 'outline',
-          size: 'large',
-          width: '300',
-          text: 'continue_with',
-          logo_alignment: 'center',
-        });
-      }
-
-      // Render signup button
-      if (googleSignUpButtonDiv.current) {
-        window.google.accounts.id.renderButton(googleSignUpButtonDiv.current, {
-          theme: 'outline',
-          size: 'large',
-          width: '300',
-          text: 'signup_with',
-          logo_alignment: 'center',
-        });
-      }
-
       return true;
     } catch (error) {
-      console.error('Error initializing Google Sign-In:', error);
+      console.error('Error initializing Google Sign-In API:', error);
+      toast.error('Failed to initialize Google Sign-In. Please refresh.');
       return false;
     }
   };
 
   // Load Google Sign-In script
   useEffect(() => {
-    if (googleInitialized) return;
+    if (googleInitialized) { // If already initialized by any means, do nothing.
+      return;
+    }
 
     const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!googleClientId) {
@@ -130,17 +112,20 @@ const UnifiedAuthComponent: React.FC = () => {
       return;
     }
 
-    // Check if script is already loaded
-    const existingScript = document.querySelector(
-      'script[src="https://accounts.google.com/gsi/client"]'
-    );
-
-    if (existingScript) {
-      // If script already exists, try to initialize
-      if (initializeGoogleSignIn()) {
+    // Check if the Google GSI script is already loaded and API is available
+    if (window.google?.accounts?.id) {
+      if (initializeGoogleSignInAPI()) {
         setGoogleInitialized(true);
       }
-      return;
+      return; // API already available and initialized (or attempted)
+    }
+
+    // Check if our specific script tag is already in the DOM
+    if (document.getElementById('google-gsi-script')) {
+      // Script tag exists. If window.google.accounts.id is not yet ready,
+      // its onload (attached when it was first added) should handle setting googleInitialized.
+      // This prevents adding multiple listeners to the same script or adding multiple scripts.
+      return; 
     }
 
     // Load script if not loaded
@@ -148,15 +133,16 @@ const UnifiedAuthComponent: React.FC = () => {
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    script.id = 'google-gsi-script';
+    script.id = 'google-gsi-script'; // Use this ID for the check above
 
     script.onload = () => {
-      // Add a slight delay to ensure the Google API is fully loaded
-      // setTimeout(() => {
-      if (initializeGoogleSignIn()) {
+      // API script has loaded, now initialize the client
+      if (initializeGoogleSignInAPI()) {
         setGoogleInitialized(true);
+      } else {
+        // Initialization failed even after script load.
+        // initializeGoogleSignInAPI already logs errors.
       }
-      // }, 100);
     };
 
     script.onerror = () => {
@@ -166,24 +152,30 @@ const UnifiedAuthComponent: React.FC = () => {
 
     document.body.appendChild(script);
 
-    // Cleanup function
-    return () => {
-      // We don't remove the script on unmount to prevent multiple loads
-      // Just cleanup any listeners if needed
-    };
   }, [googleInitialized]);
 
-  // Re-initialize Google button when div reference changes or when switching modes
+  // Render Google button when API is initialized, div is available, and mode is appropriate
   useEffect(() => {
-    if (googleInitialized && (mode === 'login' || mode === 'signup')) {
-      initializeGoogleSignIn();
+    if (googleInitialized && googleButtonRef.current && (mode === 'login' || mode === 'signup')) {
+      if (window.google?.accounts?.id) { // Double check API is there
+        try {
+          window.google.accounts.id.renderButton(googleButtonRef.current, {
+            theme: 'outline',
+            size: 'large',
+            width: '300', // Ensure this matches your desired width
+            text: mode === 'login' ? 'continue_with' : 'signup_with',
+            logo_alignment: 'center',
+          });
+        } catch (error) {
+            console.error("Error rendering Google button:", error);
+            // Potentially toast an error or retry if appropriate
+        }
+      } else {
+        console.warn("Google SDK not ready for rendering button in effect, though googleInitialized is true.");
+      }
     }
-  }, [
-    mode,
-    googleInitialized,
-    googleButtonDiv.current,
-    googleSignUpButtonDiv.current,
-  ]);
+  }, [mode, googleInitialized, googleButtonRef]); // Rerun when mode or initialization status changes.
+                                                 // React handles changes to googleButtonRef.current implicitly here.
 
   // Reset form when changing modes
   useEffect(() => {
@@ -389,26 +381,6 @@ const UnifiedAuthComponent: React.FC = () => {
     }
   };
 
-  // In your component:
-  const googleButtonRef = useRef<HTMLDivElement>(null);
-
-  // In your useEffect:
-  useEffect(() => {
-    if (
-      googleInitialized &&
-      googleButtonRef.current &&
-      (mode === 'login' || mode === 'signup')
-    ) {
-      window?.google?.accounts?.id?.renderButton(googleButtonRef.current, {
-        theme: 'outline',
-        size: 'large',
-        width: '300',
-        text: mode === 'login' ? 'continue_with' : 'signup_with',
-        logo_alignment: 'center',
-      });
-    }
-  }, [mode, googleInitialized, googleButtonRef.current]);
-
   const renderAuthForm = () => {
     const emailValidation = {
       required: 'Email is required',
@@ -532,7 +504,7 @@ const UnifiedAuthComponent: React.FC = () => {
             )}
 
             <div className="flex items-center gap-10 text-[#42a674]">
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="rememberMe"
@@ -541,14 +513,14 @@ const UnifiedAuthComponent: React.FC = () => {
                 />
                 <label
                   htmlFor="rememberMe"
-                  className="ml-2 text-sm text-[#42a674] align-middle mt-2"
+                  className=" text-sm text-[#42a674] align-middle mt-2"
                 >
                   Remember me
                 </label>
               </div>
               <Link
                 href="#"
-                className="flex ml-2 justify-end cursor-pointer"
+                className="flex justify-end cursor-pointer"
                 onClick={() => handleModeChange('reset')}
               >
                 Forgot Password?
@@ -592,8 +564,8 @@ const UnifiedAuthComponent: React.FC = () => {
             {/* Google Sign-In Button Container */}
             <div className="flex justify-center">
               <div
-                ref={googleButtonDiv}
-                id="googleButton"
+                ref={googleButtonRef} // Use the consolidated ref
+                id="googleButtonContainer" // Consistent ID, though ref is primary for programmatic access
                 className="flex justify-center w-full"
               ></div>
             </div>
@@ -680,17 +652,10 @@ const UnifiedAuthComponent: React.FC = () => {
             </div>
 
             {/* Google Sign-Up Button Container */}
-            {/* <div className="flex justify-center">
-              <div
-                ref={googleSignUpButtonDiv}
-                id="googleSignUpButton"
-                className="flex justify-center w-full"
-              ></div>
-            </div> */}
             <div className="flex justify-center">
               <div
-                ref={googleButtonRef}
-                id="googleButton"
+                ref={googleButtonRef} // Use the consolidated ref
+                id="googleButtonContainer" // Consistent ID
                 className="flex justify-center w-full"
               ></div>
             </div>
