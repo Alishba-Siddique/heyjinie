@@ -29,31 +29,50 @@ const PriceFilter: React.FC = () => {
   };
 
   return (
-    <div className="p-4  rounded-b-lg -mt-1"> {/* Added padding and background */}
+    <div className="p-4  rounded-b-lg -mt-1">
+      {' '}
+      {/* Added padding and background */}
       <div className="flex items-center justify-center space-x-4 mb-4">
+        {/* Min Price */}
         <div className="flex flex-col items-start">
-          <label htmlFor="minPrice" className="text-sm text-gray-600 mb-1">Min Price</label>
-          <Input
-            id="minPrice"
-            type="number"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            placeholder="10"
-            min="0"
-            className="w-32 h-12 text-center border-gray-600 rounded-lg focus:ring-[#40A574] focus:border-[#40A574]" // Style matching image
-          /> PKR
+          <label htmlFor="minPrice" className="text-sm text-gray-600 mb-1">
+            Min Price
+          </label>
+          <div className="relative w-64">
+            <span className="absolute left-36 top-1/2 transform -translate-y-1/2 text-gray-500">
+             PKR
+            </span>
+            <Input
+              id="minPrice"
+              type="number"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              placeholder="10"
+              min="0"
+              className="w-full pl-12 h-12 text-center border-gray-600 rounded-lg focus:ring-[#40A574] focus:border-[#40A574]"
+            />
+          </div>
         </div>
+
+        {/* Max Price */}
         <div className="flex flex-col items-start">
-          <label htmlFor="maxPrice" className="text-sm text-gray-600 mb-1">Max Price</label>
-          <Input
-            id="maxPrice"
-            type="number"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            placeholder="1000"
-            min="0"
-            className="w-32 h-12 text-center border-gray-600 rounded-lg bg-gray-700 focus:ring-[#40A574] focus:border-[#40A574]" 
-          />
+          <label htmlFor="maxPrice" className="text-sm text-gray-600 mb-1">
+            Max Price
+          </label>
+          <div className="relative w-64">
+            <span className="absolute left-36 top-1/2 transform -translate-y-1/2 text-gray-500">
+              PKR
+            </span>
+            <Input
+              id="maxPrice"
+              type="number"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              placeholder="1000"
+              min="0"
+              className="w-full pl-12 h-12 text-center border-gray-600 rounded-lg bg-gray-700 focus:ring-[#40A574] focus:border-[#40A574]"
+            />
+          </div>
         </div>
       </div>
       <Button
