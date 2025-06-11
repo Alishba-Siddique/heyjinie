@@ -243,7 +243,7 @@ const MessagesPage = () => {
   return (
     <>
       <div className="at-maincontentwrapper">
-        <div className='flex jus align-middle items-center'>
+        <div className='flex justify-between align-middle items-center'>
         <div className="text-2xl md:text-3xl font-bold  ml-4">
           My Personalized Messages
         </div>

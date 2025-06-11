@@ -23,7 +23,7 @@ export const setCookie = (key: string, value: string, options?: Cookies.CookieAt
 export const getCookie = (key: string): string | null => {
   const cookieValue = Cookies.get(key);
   if (cookieValue === undefined) {
-    console.warn(`Cookie with key "${key}" not found.`);
+    // console.warn(`Cookie with key "${key}" not found.`);
     return null; // Return null instead of undefined for clarity
   }
   return cookieValue; // Return the cookie value

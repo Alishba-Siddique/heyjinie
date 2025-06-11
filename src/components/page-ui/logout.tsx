@@ -11,7 +11,7 @@ import { clearSession } from '@/utils/sessionUtility';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import logo from '../../../public/images/logoicons.png'
+import logo from '../../../public/images/logoicons.png';
 
 const LogoutButton = () => {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
@@ -105,23 +105,23 @@ const LogoutButton = () => {
               Are you sure you want to log out?
             </DialogDescription>
           </DialogHeader>
-          <div className='at-termsandcondition'>
-          <div className="at-btnsubmit at-btnhtermsandcondition at-btnorder">
-            <button
-              type="button"
-              onClick={handleCancelLogout}
-              className="at-btn at-btncancel"
-            >
-              No
-            </button>
-            <button
-              type="button"
-              className="at-btn"
-              onClick={handleConfirmLogout}
-            >
-              Yes
-            </button>
-          </div>
+          <div className="at-termsandcondition">
+            <div className="at-btnsubmit at-btnhtermsandcondition at-btnorder">
+              <button
+                type="button"
+                onClick={handleCancelLogout}
+                className="at-btn at-btncancel"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                className="at-btn"
+                onClick={handleConfirmLogout}
+              >
+                Yes
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

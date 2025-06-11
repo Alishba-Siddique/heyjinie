@@ -1585,6 +1585,7 @@ const Sidebar = () => {
         .at-navigation {
           scrollbar-width: none;
           -ms-overflow-style: none;
+          margin-top: 20px;
         }
 
         /* Remove any existing scrollbar styles */

@@ -130,9 +130,9 @@ const slugify = (str: string) =>
   str
     .toLowerCase()
     .trim()
-    .replace(/&/g, 'and')
+    .replace(/&/g, '-and-')
     .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
+    .replace(/\s/g, '-')
     .replace(/-+/g, '-');
 
 const unslugify = (slug: string) => {
